@@ -1,0 +1,8 @@
+#define F_CPU 8000000L
+#define NES_PORT PORTD
+#define NES_PORT_DDR DDRD
+#define NES_PORT_PIN PIND
+#define NES_LATCH_PIN 2
+#define NES_CLOCK_PIN 3
+#define NES_DATA_PIN 4
+
