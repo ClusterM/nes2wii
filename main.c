@@ -63,6 +63,10 @@ int main()
 
 	while(1)
 	{
+		but_dat[0] = 0b01011111; // RX<4:3>	LX<5:0>
+		but_dat[1] = 0b11011111; // RX<2:1>	LY<5:0>
+		but_dat[2] = 0b10001111; // RX<0>	LT<4:3>	RY<4:0>
+		but_dat[3] = 0b00000000; // LT<2:0>	RT<4:0>
 		but_dat[4] = 0b11111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 		but_dat[5] = 0b11111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
 		uint8_t gamepad_data = get_nes_gamepad();
@@ -86,16 +90,20 @@ int main()
 						but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 						break;
 					case 4: // Up
-						but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						//but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						but_dat[1] += 30;
 						break;
 					case 5: // Down
-						but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						//but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						but_dat[1] -= 30;
 						break;
 					case 6: // Left
-						but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						//but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						but_dat[0] -= 30;
 						break;
 					case 7: // Right
-						but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						//but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						but_dat[0] += 30;
 						break;
 				}
 			}
