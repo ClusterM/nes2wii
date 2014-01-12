@@ -22,7 +22,6 @@ const unsigned char cal_data[32] = {
 
 void wiimote_query()
 {
-	//PORTD ^= 1<<7;
 }
 
 uint8_t get_nes_gamepad()
@@ -45,11 +44,9 @@ uint8_t get_nes_gamepad()
 
 int main()
 {
-	//DDRD = 1<<7;
-	//PORTD = 0;
 	NES_PORT_DDR |= 1<<NES_LATCH_PIN; // Latch
 	NES_PORT_DDR |= 1<<NES_CLOCK_PIN; // Clock
-	NES_PORT |= 1<<NES_DATA_PIN; // Data, подтяжка
+	NES_PORT |= 1<<NES_DATA_PIN; // Data, pull-up
 
 	unsigned char but_dat[6]; // struct containing button data
 	but_dat[0] = 0b01011111; // RX<4:3>	LX<5:0>
