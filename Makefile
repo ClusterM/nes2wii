@@ -1,9 +1,8 @@
 PRG            = nes2wii
 OBJ            = main.o wiimote.o
-LFUSE          = C4
-HFUSE          = D9
-EFUSE          = FF
-MCU_PROGRAMMER = m64
+LFUSE          = CF
+HFUSE          = C9
+MCU_PROGRAMMER = m16
 #PROGRAMMER_TYPE = avr109 
 PROGRAMMER_TYPE = avrisp2
 #PROGRAMMER_PORT = com3
@@ -16,10 +15,10 @@ PROGRAMMER_PORT = usb
 #MCU_TARGET     = at90s4434
 #MCU_TARGET     = at90s8515
 #MCU_TARGET     = at90s8535
-MCU_TARGET     = atmega128
+#MCU_TARGET     = atmega128
 #MCU_TARGET     = atmega1280
 #MCU_TARGET     = atmega1281
-#MCU_TARGET     = atmega16
+MCU_TARGET     = atmega16
 #MCU_TARGET     = atmega163
 #MCU_TARGET     = atmega164p
 #MCU_TARGET     = atmega165
@@ -148,4 +147,4 @@ pdf: $(PRG).pdf
 	$(FIG2DEV) -L png $< $@
 
 program: hex
-	avrdude -V -p $(MCU_PROGRAMMER) -c $(PROGRAMMER_TYPE) -P $(PROGRAMMER_PORT) -U flash:w:$(PRG).hex -U lfuse:w:0x$(LFUSE):m -U hfuse:w:0x$(HFUSE):m -U efuse:w:0x$(EFUSE):m
+	avrdude -V -p $(MCU_PROGRAMMER) -c $(PROGRAMMER_TYPE) -P $(PROGRAMMER_PORT) -U flash:w:$(PRG).hex -U lfuse:w:0x$(LFUSE):m -U hfuse:w:0x$(HFUSE):m

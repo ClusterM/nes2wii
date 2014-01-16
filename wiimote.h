@@ -7,8 +7,8 @@
 #include <util/twi.h>
 #include <avr/interrupt.h>
 
-#define twi_port PORTD
-#define twi_ddr DDRD
+#define twi_port PORTC
+#define twi_ddr DDRC
 #define twi_scl_pin 0
 #define twi_sda_pin 1
 

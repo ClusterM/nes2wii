@@ -1,4 +1,4 @@
-#define F_CPU 8000000L
+#define F_CPU 20000000L
 #define NES_PORT PORTD
 #define NES_PORT_DDR DDRD
 #define NES_PORT_PIN PIND
