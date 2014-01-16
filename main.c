@@ -49,7 +49,7 @@ uint16_t get_snes_gamepad()
 	uint16_t gamepad_data = 0;
 	SNES_PORT &= ~(1<<SNES_LATCH_PIN); // Latch
 	int b;
-	for (b = 0; b < 8; b++)
+	for (b = 0; b < 16; b++)
 	{
 		SNES_PORT &= ~(1<<SNES_CLOCK_PIN); // Clock
 		_delay_us(10);
