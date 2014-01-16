@@ -40,6 +40,7 @@ uint8_t get_nes_gamepad()
 		_delay_us(10);
 	}		
 	NES_PORT |= 1<<NES_LATCH_PIN; // Latch
+	_delay_us(10);
 	return gamepad_data;
 }
 
@@ -57,6 +58,7 @@ uint16_t get_snes_gamepad()
 		_delay_us(10);
 	}		
 	SNES_PORT |= 1<<SNES_LATCH_PIN; // Latch
+	_delay_us(10);
 	return gamepad_data;
 }
 
