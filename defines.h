@@ -19,7 +19,7 @@
 #define NES_CLOCK_PIN 1
 #define NES_DATA_PIN 2
 
-#define SNES_ENABLED
+//#define SNES_ENABLED
 #define SNES_PORT PORTA
 #define SNES_PORT_DDR DDRA
 #define SNES_PORT_PIN PINA
