@@ -140,7 +140,7 @@ void wiimote_query()
 				switch (b)
 				{
 					case 2: // L
-						but_dat[5] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 						break;
 					case 3: // R
 						but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
@@ -214,7 +214,7 @@ void wiimote_query()
 					but_dat[5] &= 0b11110111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
 					break;
 				case 10: // L
-					but_dat[5] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+					but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 					break;
 				case 11: // R
 					but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
