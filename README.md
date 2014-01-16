@@ -5,7 +5,7 @@ NES2Wii - NES/SNES/N64 gamepad to wii remote adapter
 Features:
 
 * You can play Wii virtual console games using original NES/SNES/N64 gamepad!
-* You con connect Wiimote to PC via bluetooth and use original NES/SNES/N64 controllers with emulators
+* You can connect Wiimote to PC via bluetooth and use original NES/SNES/N64 controllers with emulators
 
 ## Schematics
 
