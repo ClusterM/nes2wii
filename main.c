@@ -40,7 +40,23 @@ uint8_t get_nes_gamepad()
 		_delay_us(10);
 	}		
 	NES_PORT |= 1<<NES_LATCH_PIN; // Latch
-	_delay_us(10);
+	return gamepad_data;
+}
+
+uint16_t get_snes_gamepad()
+{
+	uint16_t gamepad_data = 0;
+	SNES_PORT &= ~(1<<SNES_LATCH_PIN); // Latch
+	int b;
+	for (b = 0; b < 8; b++)
+	{
+		SNES_PORT &= ~(1<<SNES_CLOCK_PIN); // Clock
+		_delay_us(10);
+		gamepad_data |= ((uint16_t)((SNES_PORT_PIN>>SNES_DATA_PIN)&1)<<b);
+		SNES_PORT |= 1<<SNES_CLOCK_PIN; // Clock
+		_delay_us(10);
+	}		
+	SNES_PORT |= 1<<SNES_LATCH_PIN; // Latch
 	return gamepad_data;
 }
 
@@ -75,6 +91,7 @@ void wiimote_query()
 	but_dat[5] = 0b11111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
 	int x = 0;
 	int y = 0;
+	int b;
 	
 #ifdef N64_ENABLED	
 	uint8_t n64_data[4];
@@ -152,9 +169,60 @@ void wiimote_query()
 		y = y * 30 / 80;
 	}
 #endif
+#ifdef SNES_ENABLED
+	uint16_t snes_gamepad_data = get_snes_gamepad();
+	for (b = 0; b < 16; b++)
+	{
+		if (!((snes_gamepad_data>>b)&1))
+		{
+			switch (b)
+			{
+				case 0: // B
+					but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+					break;
+				case 1: // Y
+					but_dat[5] &= 0b11011111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+					break;
+				case 2: // Select
+					but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+					break;
+				case 3: // Start
+					but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+					break;
+				case 4: // Up
+					//but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+					y = 30;
+					break;
+				case 5: // Down
+					//but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+					y = -30;
+					break;
+				case 6: // Left
+					//but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+					x = -30;
+					break;
+				case 7: // Right
+					//but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+					x = 30;
+					break;
+				case 8: // A
+					but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+					break;
+				case 9: // X
+					but_dat[5] &= 0b11110111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+					break;
+				case 10: // L
+					but_dat[5] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+					break;
+				case 11: // R
+					but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+					break;
+			}
+		}
+	}
+#endif
 #ifdef NES_ENABLED
 	uint8_t nes_gamepad_data = get_nes_gamepad();
-	int b;
 	for (b = 0; b < 8; b++)
 	{
 		if (!((nes_gamepad_data>>b)&1))
@@ -205,6 +273,11 @@ int main()
 #ifdef N64_ENABLED
 	N64_PORT_DDR &= ~(1<<N64_DATA_PIN); // Input
 	N64_PORT &= ~(1<<N64_DATA_PIN); // No pull-up (using external resistor)
+#endif
+#ifdef SNES_ENABLED
+	SNES_PORT_DDR |= 1<<SNES_LATCH_PIN; // Latch
+	SNES_PORT_DDR |= 1<<SNES_CLOCK_PIN; // Clock
+	SNES_PORT |= 1<<SNES_DATA_PIN; // Data, pull-up
 #endif
 #ifdef NES_ENABLED
 	NES_PORT_DDR |= 1<<NES_LATCH_PIN; // Latch
