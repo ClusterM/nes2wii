@@ -40,7 +40,6 @@ uint8_t get_nes_gamepad()
 		_delay_us(10);
 	}		
 	NES_PORT |= 1<<NES_LATCH_PIN; // Latch
-	_delay_us(10);
 	return gamepad_data;
 }
 
@@ -58,7 +57,6 @@ uint16_t get_snes_gamepad()
 		_delay_us(10);
 	}		
 	SNES_PORT |= 1<<SNES_LATCH_PIN; // Latch
-	_delay_us(10);
 	return gamepad_data;
 }
 
@@ -84,189 +82,6 @@ int get_n64_gamepad(uint8_t* data)
 
 void wiimote_query()
 {
-	unsigned char but_dat[6]; // struct containing button data
-	but_dat[0] = 0b01011111; // RX<4:3>	LX<5:0>
-	but_dat[1] = 0b11011111; // RX<2:1>	LY<5:0>
-	but_dat[2] = 0b10001111; // RX<0>	LT<4:3>	RY<4:0>
-	but_dat[3] = 0b00000000; // LT<2:0>	RT<4:0>
-	but_dat[4] = 0b11111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-	but_dat[5] = 0b11111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-	int x = 0;
-	int y = 0;
-	int b;
-	
-#ifdef N64_ENABLED	
-	uint8_t n64_data[4];
-	if (get_n64_gamepad(n64_data))
-	{
-		int b;
-		for (b = 0; b < 8; b++)
-		{
-			if (((n64_data[0]>>(7-b))&1))
-			{
-				switch (b)
-				{
-					case 0: // A
-						but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-						break;
-					case 1: // B
-						but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-						break;
-					case 2: // Z
-						but_dat[5] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-						break;
-					case 3: // Start
-						but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-						break;
-					case 4: // Up
-						but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-						break;
-					case 5: // Down
-						but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-						break;
-					case 6: // Left
-						but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-						break;
-					case 7: // Right
-						but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-						break;
-				}
-			}
-		}
-		for (b = 0; b < 8; b++)
-		{
-			if (((n64_data[1]>>(7-b))&1))
-			{
-				switch (b)
-				{
-					case 2: // L
-						but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-						break;
-					case 3: // R
-						but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-						break;
-					case 4: // Up
-						but_dat[2] |= 0b00011111; // RX<0>	LT<4:3>	RY<4:0>
-						break;
-					case 5: // Down
-						but_dat[2] &= ~0b00011111; // RX<0>	LT<4:3>	RY<4:0>
-						break;
-					case 6: // Left
-						but_dat[0] &= ~0b11000000; // RX<4:3>	LX<5:0>
-						but_dat[1] &= ~0b11000000; // RX<2:1>	LY<5:0>			
-						break;
-					case 7: // Right
-						but_dat[0] |= 0b11000000; // RX<4:3>	LX<5:0>
-						but_dat[1] |= 0b11000000; // RX<2:1>	LY<5:0>			
-					break;
-				}
-			}
-		}
-		
-		x = n64_data[2];
-		if (x >= 0x80) x = -0x100+x;
-		y = n64_data[3];
-		if (y >= 0x80) y = -0x100+y;
-		x = x * 30 / 80;
-		y = y * 30 / 80;
-	}
-#endif
-#ifdef SNES_ENABLED
-	uint16_t snes_gamepad_data = get_snes_gamepad();
-	for (b = 0; b < 16; b++)
-	{
-		if (!((snes_gamepad_data>>b)&1))
-		{
-			switch (b)
-			{
-				case 0: // B
-					but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-					break;
-				case 1: // Y
-					but_dat[5] &= 0b11011111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-					break;
-				case 2: // Select
-					but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-					break;
-				case 3: // Start
-					but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-					break;
-				case 4: // Up
-					//but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-					y = 30;
-					break;
-				case 5: // Down
-					//but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-					y = -30;
-					break;
-				case 6: // Left
-					//but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-					x = -30;
-					break;
-				case 7: // Right
-					//but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-					x = 30;
-					break;
-				case 8: // A
-					but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-					break;
-				case 9: // X
-					but_dat[5] &= 0b11110111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-					break;
-				case 10: // L
-					but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-					break;
-				case 11: // R
-					but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-					break;
-			}
-		}
-	}
-#endif
-#ifdef NES_ENABLED
-	uint8_t nes_gamepad_data = get_nes_gamepad();
-	for (b = 0; b < 8; b++)
-	{
-		if (!((nes_gamepad_data>>b)&1))
-		{
-			switch (b)
-			{
-				case 0: // A
-					but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-					break;
-				case 1: // B
-					but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-					break;
-				case 2: // Select
-					but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-					break;
-				case 3: // Start
-					but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-					break;
-				case 4: // Up
-					//but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-					y = 30;
-					break;
-				case 5: // Down
-					//but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-					y = -30;
-					break;
-				case 6: // Left
-					//but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-					x = -30;
-					break;
-				case 7: // Right
-					//but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-					x = 30;
-					break;
-			}
-		}
-	}
-#endif
-
-	but_dat[0] += x;
-	but_dat[1] += y;
-	wm_newaction(but_dat);
 }
 
 int main()
@@ -299,6 +114,193 @@ int main()
 
 	while(1)
 	{
+		but_dat[0] = 0b01011111; // RX<4:3>	LX<5:0>
+		but_dat[1] = 0b11011111; // RX<2:1>	LY<5:0>
+		but_dat[2] = 0b10001111; // RX<0>	LT<4:3>	RY<4:0>
+		but_dat[3] = 0b00000000; // LT<2:0>	RT<4:0>
+		but_dat[4] = 0b11111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+		but_dat[5] = 0b11111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+		int x = 0;
+		int y = 0;
+		int b;
+	
+#ifdef N64_ENABLED	
+		uint8_t n64_data[4];
+		cli();
+		int n64_ok = get_n64_gamepad(n64_data);
+		sei();
+		if (n64_ok)
+		{
+			int b;
+			for (b = 0; b < 8; b++)
+			{
+				if (((n64_data[0]>>(7-b))&1))
+				{
+					switch (b)
+					{
+						case 0: // A
+							but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							break;
+						case 1: // B
+							but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							break;
+						case 2: // Z
+							but_dat[5] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							break;
+						case 3: // Start
+							but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							break;
+						case 4: // Up
+							but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							break;
+						case 5: // Down
+							but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							break;
+						case 6: // Left
+							but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							break;
+						case 7: // Right
+							but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							break;
+					}
+				}
+			}
+			for (b = 0; b < 8; b++)
+			{
+				if (((n64_data[1]>>(7-b))&1))
+				{
+					switch (b)
+					{
+						case 2: // L
+							but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							break;
+						case 3: // R
+							but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							break;
+						case 4: // Up
+							but_dat[2] |= 0b00011111; // RX<0>	LT<4:3>	RY<4:0>
+							break;
+						case 5: // Down
+							but_dat[2] &= ~0b00011111; // RX<0>	LT<4:3>	RY<4:0>
+							break;
+						case 6: // Left
+							but_dat[0] &= ~0b11000000; // RX<4:3>	LX<5:0>
+							but_dat[1] &= ~0b11000000; // RX<2:1>	LY<5:0>			
+							break;
+						case 7: // Right
+							but_dat[0] |= 0b11000000; // RX<4:3>	LX<5:0>
+							but_dat[1] |= 0b11000000; // RX<2:1>	LY<5:0>			
+						break;
+					}
+				}
+			}
+		
+			x = n64_data[2];
+			if (x >= 0x80) x = -0x100+x;
+			y = n64_data[3];
+			if (y >= 0x80) y = -0x100+y;
+			x = x * 30 / 80;
+			y = y * 30 / 80;
+		}
+#endif
+#ifdef SNES_ENABLED
+		uint16_t snes_gamepad_data = get_snes_gamepad();
+		for (b = 0; b < 16; b++)
+		{
+			if (!((snes_gamepad_data>>b)&1))
+			{
+				switch (b)
+				{
+					case 0: // B
+						but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						break;
+					case 1: // Y
+						but_dat[5] &= 0b11011111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						break;
+					case 2: // Select
+						but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						break;
+					case 3: // Start
+						but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						break;
+					case 4: // Up
+						//but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						y = 30;
+						break;
+					case 5: // Down
+						//but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						y = -30;
+						break;
+					case 6: // Left
+						//but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						x = -30;
+						break;
+					case 7: // Right
+						//but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						x = 30;
+						break;
+					case 8: // A
+						but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						break;
+					case 9: // X
+						but_dat[5] &= 0b11110111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						break;
+					case 10: // L
+						but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						break;
+					case 11: // R
+						but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						break;
+				}
+			}
+		}
+#endif
+#ifdef NES_ENABLED
+		uint8_t nes_gamepad_data = get_nes_gamepad();
+		for (b = 0; b < 8; b++)
+		{
+			if (!((nes_gamepad_data>>b)&1))
+			{
+				switch (b)
+				{
+					case 0: // A
+						but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						break;
+					case 1: // B
+						but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						break;
+					case 2: // Select
+						but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						break;
+					case 3: // Start
+						but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						break;
+					case 4: // Up
+						//but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						y = 30;
+						break;
+					case 5: // Down
+						//but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						y = -30;
+						break;
+					case 6: // Left
+						//but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						x = -30;
+						break;
+					case 7: // Right
+						//but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						x = 30;
+						break;
+				}
+			}
+		}
+#endif
+
+		but_dat[0] += x;
+		but_dat[1] += y;
+		wm_newaction(but_dat);
+	
+		_delay_us(10);
 	}
 	return 0;
 }
