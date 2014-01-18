@@ -8,7 +8,6 @@
 #define N64SEND_1 {N64SEND(1); WAIT(3);}
 #define N64SEND_0 {N64SEND(3); WAIT(1);}
 #define N64SEND_STOP {N64SEND(1); WAIT(2);}
-#define N64SEND_STOP {N64SEND(1); WAIT(2);}
 #define N64SIGNAL (!((N64_PORT_PIN>>N64_DATA_PIN)&1))
 
 // classic controller id
