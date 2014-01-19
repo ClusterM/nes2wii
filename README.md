@@ -1,6 +1,6 @@
 # NES2Wii
 
-NES2Wii - NES/SNES/N64/SMD gamepad to wii remote adapter
+NES2Wii - NES/SNES/N64/SMD gamepad to Wii remote adapter
 
 Features:
 
