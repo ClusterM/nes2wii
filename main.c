@@ -10,6 +10,22 @@
 #define N64SEND_STOP {N64SEND(1); WAIT(2);}
 #define N64SIGNAL (!((N64_PORT_PIN>>N64_DATA_PIN)&1))
 
+#define PRESS_A			but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_B			but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_X			but_dat[5] &= 0b11110111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_Y			but_dat[5] &= 0b11011111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_L			but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+#define PRESS_R			but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+#define PRESS_ZL		but_dat[5] &= 0b01111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_ZR		but_dat[5] &= 0b11111011; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_SELECT 	but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+#define PRESS_START 	but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+#define PRESS_UP		but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_DOWN		but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+#define PRESS_LEFT		but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_RIGHT		but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+
+
 // classic controller id
 const unsigned char classic_controller_id[6] = {0x00, 0x00, 0xA4, 0x20, 0x01, 0x01};
 
@@ -176,28 +192,28 @@ int main()
 					switch (b)
 					{
 						case 0: // A
-							but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							PRESS_A;
 							break;
 						case 1: // B
-							but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							PRESS_B;
 							break;
 						case 2: // Z
-							but_dat[5] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							PRESS_ZL;
 							break;
 						case 3: // Start
-							but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							PRESS_START;
 							break;
 						case 4: // Up
-							but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							PRESS_UP;
 							break;
 						case 5: // Down
-							but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							PRESS_DOWN;
 							break;
 						case 6: // Left
-							but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							PRESS_LEFT;
 							break;
 						case 7: // Right
-							but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							PRESS_RIGHT;
 							break;
 					}
 				}
@@ -209,22 +225,22 @@ int main()
 					switch (b)
 					{
 						case 2: // L
-							but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							PRESS_L;
 							break;
 						case 3: // R
-							but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							PRESS_R;
 							break;
-						case 4: // Up
+						case 4: // C-Up
 							but_dat[2] |= 0b00011111; // RX<0>	LT<4:3>	RY<4:0>
 							break;
-						case 5: // Down
+						case 5: // C-Down
 							but_dat[2] &= ~0b00011111; // RX<0>	LT<4:3>	RY<4:0>
 							break;
-						case 6: // Left
+						case 6: // C-Left
 							but_dat[0] &= ~0b11000000; // RX<4:3>	LX<5:0>
 							but_dat[1] &= ~0b11000000; // RX<2:1>	LY<5:0>			
 							break;
-						case 7: // Right
+						case 7: // C-Right
 							but_dat[0] |= 0b11000000; // RX<4:3>	LX<5:0>
 							but_dat[1] |= 0b11000000; // RX<2:1>	LY<5:0>			
 						break;
@@ -249,44 +265,40 @@ int main()
 				switch (b)
 				{
 					case 0: // B
-						but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						PRESS_B;
 						break;
 					case 1: // Y
-						but_dat[5] &= 0b11011111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						PRESS_Y;
 						break;
 					case 2: // Select
-						but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						PRESS_SELECT;
 						break;
 					case 3: // Start
-						but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						PRESS_START;
 						break;
 					case 4: // Up
-						//but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
 						y = 30;
 						break;
 					case 5: // Down
-						//but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 						y = -30;
 						break;
 					case 6: // Left
-						//but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
 						x = -30;
 						break;
 					case 7: // Right
-						//but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 						x = 30;
 						break;
 					case 8: // A
-						but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						PRESS_A;
 						break;
 					case 9: // X
-						but_dat[5] &= 0b11110111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						PRESS_X;
 						break;
 					case 10: // L
-						but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						PRESS_L;
 						break;
 					case 11: // R
-						but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						PRESS_R;
 						break;
 				}
 			}
@@ -301,31 +313,27 @@ int main()
 				switch (b)
 				{
 					case 0: // A
-						but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						PRESS_A;
 						break;
 					case 1: // B
-						but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+						PRESS_B;
 						break;
 					case 2: // Select
-						but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						PRESS_SELECT;
 						break;
 					case 3: // Start
-						but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+						PRESS_START;
 						break;
 					case 4: // Up
-						//but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
 						y = 30;
 						break;
 					case 5: // Down
-						//but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 						y = -30;
 						break;
 					case 6: // Left
-						//but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
 						x = -30;
 						break;
 					case 7: // Right
-						//but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 						x = 30;
 						break;
 				}
@@ -343,32 +351,28 @@ int main()
 					switch (b)
 					{
 						case 0: // Up
-							//but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
 							y = 30;
 							break;
 						case 1: // Down
-							//but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 							y = -30;
 							break;
 						case 4: // A(SMD)/Y(Classic)
-							but_dat[5] &= 0b11011111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							PRESS_Y;
 							break;
 						case 5: // Start
-							but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							PRESS_START;
 							break;
 						case 10: // Left
-							//but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
 							x = -30;
 							break;
 						case 11: // Right
-							//but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 							x = 30;
 							break;
 						case 12: // B(SMD)/A(Classic)
-							but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							PRESS_A;
 							break;
 						case 13: // C(SMD)/B(Classic)
-							but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							PRESS_B;
 							break;
 					}
 				}
@@ -381,22 +385,22 @@ int main()
 					switch (b)
 					{
 						case 4: // A(SMD)/Y(Classic)
-							but_dat[5] &= 0b11011111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							PRESS_Y;
 							break;
 						case 5: // Start
-							but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							PRESS_START;
 							break;							
 						case 8: // X(SMD)/L(Classic)
-							but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							PRESS_L;
 							break;
 						case 9: // Y(SMD)/X(Classic)
-							but_dat[5] &= 0b11110111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							PRESS_X;
 							break;
 						case 10: // Z(SMD)/R(Classic)
-							but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							PRESS_R;
 							break;
 						case 11: // Mode(SMD)/Select(Classic)
-							but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							PRESS_SELECT;
 							break;
 					}
 				}
