@@ -91,7 +91,7 @@ uint16_t get_smd_gamepad()
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA3_PIN)&1)<<3)
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA4_PIN)&1)<<4)
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA5_PIN)&1)<<5);
-	SMD_SELECT_PORT |= 1<<SMD_SELECT_PIN; // Select - low
+	SMD_SELECT_PORT |= 1<<SMD_SELECT_PIN; // Select - high
 	_delay_us(10);
 	gamepad_data_high = ((SMD_DATA_PORT_PIN>>SMD_DATA0_PIN)&1) 
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA1_PIN)&1)<<1) 
@@ -131,12 +131,12 @@ int main()
 	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA3_PIN); // Data 3, input
 	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA4_PIN); // Data 4, input
 	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA5_PIN); // Data 5, input
-	SMD_DATA_PORT &= 1<<SMD_DATA0_PIN; // Data 0, pull-up
-	SMD_DATA_PORT &= 1<<SMD_DATA1_PIN; // Data 1, pull-up
-	SMD_DATA_PORT &= 1<<SMD_DATA2_PIN; // Data 2, pull-up
-	SMD_DATA_PORT &= 1<<SMD_DATA3_PIN; // Data 3, pull-up
-	SMD_DATA_PORT &= 1<<SMD_DATA4_PIN; // Data 4, pull-up
-	SMD_DATA_PORT &= 1<<SMD_DATA5_PIN; // Data 5, pull-up
+	SMD_DATA_PORT |= 1<<SMD_DATA0_PIN; // Data 0, pull-up
+	SMD_DATA_PORT |= 1<<SMD_DATA1_PIN; // Data 1, pull-up
+	SMD_DATA_PORT |= 1<<SMD_DATA2_PIN; // Data 2, pull-up
+	SMD_DATA_PORT |= 1<<SMD_DATA3_PIN; // Data 3, pull-up
+	SMD_DATA_PORT |= 1<<SMD_DATA4_PIN; // Data 4, pull-up
+	SMD_DATA_PORT |= 1<<SMD_DATA5_PIN; // Data 5, pull-up
 #endif
 
 	unsigned char but_dat[6]; // struct containing button data
