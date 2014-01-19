@@ -79,6 +79,29 @@ int get_n64_gamepad(uint8_t* data)
 	return 1;
 }
 
+uint16_t get_smd_gamepad()
+{
+	uint8_t gamepad_data_low = 0;
+	uint8_t gamepad_data_high = 0;
+	SMD_SELECT_PORT &= ~(1<<SMD_SELECT_PIN); // Select - low
+	_delay_us(10);
+	gamepad_data_low = ((SMD_DATA_PORT_PIN>>SMD_DATA0_PIN)&1) 
+		| (((SMD_DATA_PORT_PIN>>SMD_DATA1_PIN)&1)<<1) 
+		| (((SMD_DATA_PORT_PIN>>SMD_DATA2_PIN)&1)<<2)
+		| (((SMD_DATA_PORT_PIN>>SMD_DATA3_PIN)&1)<<3)
+		| (((SMD_DATA_PORT_PIN>>SMD_DATA4_PIN)&1)<<4)
+		| (((SMD_DATA_PORT_PIN>>SMD_DATA5_PIN)&1)<<5);
+	SMD_SELECT_PORT |= 1<<SMD_SELECT_PIN; // Select - low
+	_delay_us(10);
+	gamepad_data_high = ((SMD_DATA_PORT_PIN>>SMD_DATA0_PIN)&1) 
+		| (((SMD_DATA_PORT_PIN>>SMD_DATA1_PIN)&1)<<1) 
+		| (((SMD_DATA_PORT_PIN>>SMD_DATA2_PIN)&1)<<2)
+		| (((SMD_DATA_PORT_PIN>>SMD_DATA3_PIN)&1)<<3)
+		| (((SMD_DATA_PORT_PIN>>SMD_DATA4_PIN)&1)<<4)
+		| (((SMD_DATA_PORT_PIN>>SMD_DATA5_PIN)&1)<<5);
+	return ((uint16_t)gamepad_data_high<<8) | gamepad_data_low;
+}
+
 void wiimote_query()
 {
 }
@@ -91,14 +114,29 @@ int main()
 	N64_PORT &= ~(1<<N64_DATA_PIN); // No pull-up (using external resistor)
 #endif
 #ifdef SNES_ENABLED
-	SNES_PORT_DDR |= 1<<SNES_LATCH_PIN; // Latch
-	SNES_PORT_DDR |= 1<<SNES_CLOCK_PIN; // Clock
+	SNES_PORT_DDR |= 1<<SNES_LATCH_PIN; // Latch, output
+	SNES_PORT_DDR |= 1<<SNES_CLOCK_PIN; // Clock, output
 	SNES_PORT |= 1<<SNES_DATA_PIN; // Data, pull-up
 #endif
 #ifdef NES_ENABLED
-	NES_PORT_DDR |= 1<<NES_LATCH_PIN; // Latch
-	NES_PORT_DDR |= 1<<NES_CLOCK_PIN; // Clock
+	NES_PORT_DDR |= 1<<NES_LATCH_PIN; // Latch, output
+	NES_PORT_DDR |= 1<<NES_CLOCK_PIN; // Clock, output
 	NES_PORT |= 1<<NES_DATA_PIN; // Data, pull-up
+#endif
+#ifdef SMD_ENABLED
+	SMD_SELECT_PORT_DDR |= 1<<SMD_SELECT_PIN; // Select, output
+	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA0_PIN); // Data 0, input
+	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA1_PIN); // Data 1, input
+	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA2_PIN); // Data 2, input
+	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA3_PIN); // Data 3, input
+	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA4_PIN); // Data 4, input
+	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA5_PIN); // Data 5, input
+	SMD_DATA_PORT &= 1<<SMD_DATA0_PIN; // Data 0, pull-up
+	SMD_DATA_PORT &= 1<<SMD_DATA1_PIN; // Data 1, pull-up
+	SMD_DATA_PORT &= 1<<SMD_DATA2_PIN; // Data 2, pull-up
+	SMD_DATA_PORT &= 1<<SMD_DATA3_PIN; // Data 3, pull-up
+	SMD_DATA_PORT &= 1<<SMD_DATA4_PIN; // Data 4, pull-up
+	SMD_DATA_PORT &= 1<<SMD_DATA5_PIN; // Data 5, pull-up
 #endif
 
 	unsigned char but_dat[6]; // struct containing button data
@@ -109,7 +147,7 @@ int main()
 	but_dat[4] = 0b11111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 	but_dat[5] = 0b11111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
 
-	wm_init(classic_controller_id, but_dat, cal_data, wiimote_query);
+	wm_init((void*)classic_controller_id, but_dat, (void*)cal_data, wiimote_query);
 
 	while(1)
 	{
@@ -294,7 +332,77 @@ int main()
 			}
 		}
 #endif
-
+#ifdef SMD_ENABLED
+		uint16_t smd_gamepad_data = get_smd_gamepad();
+		if (smd_gamepad_data & 0b00001111) // 3-button mode
+		{
+			for (b = 0; b <= 13; b++)
+			{
+				if (!((smd_gamepad_data>>b)&1))
+				{
+					switch (b)
+					{
+						case 0: // Up
+							//but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							y = 30;
+							break;
+						case 1: // Down
+							//but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							y = -30;
+							break;
+						case 4: // A(SMD)/Y(Classic)
+							but_dat[5] &= 0b11011111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							break;
+						case 5: // Start
+							but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							break;
+						case 10: // Left
+							//but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							x = -30;
+							break;
+						case 11: // Right
+							//but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							x = 30;
+							break;
+						case 12: // B(SMD)/A(Classic)
+							but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							break;
+						case 13: // C(SMD)/B(Classic)
+							but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							break;
+					}
+				}
+			}
+		} else { // 6-button mode
+			for (b = 4; b <= 11; b++)
+			{
+				if (!((smd_gamepad_data>>b)&1))
+				{
+					switch (b)
+					{
+						case 4: // A(SMD)/Y(Classic)
+							but_dat[5] &= 0b11011111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							break;
+						case 5: // Start
+							but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							break;							
+						case 8: // X(SMD)/L(Classic)
+							but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							break;
+						case 9: // Y(SMD)/X(Classic)
+							but_dat[5] &= 0b11110111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+							break;
+						case 10: // Z(SMD)/R(Classic)
+							but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							break;
+						case 11: // Mode(SMD)/Select(Classic)
+							but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+							break;
+					}
+				}
+			}
+		}
+#endif
 		but_dat[0] += x;
 		but_dat[1] += y;
 		wm_newaction(but_dat);
