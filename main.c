@@ -100,7 +100,7 @@ uint16_t get_smd_gamepad()
 	uint8_t gamepad_data_low = 0;
 	uint8_t gamepad_data_high = 0;
 	SMD_SELECT_PORT &= ~(1<<SMD_SELECT_PIN); // Select - low
-	_delay_us(10);
+	_delay_us(50);
 	gamepad_data_low = ((SMD_DATA_PORT_PIN>>SMD_DATA0_PIN)&1) 
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA1_PIN)&1)<<1) 
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA2_PIN)&1)<<2)
@@ -108,7 +108,7 @@ uint16_t get_smd_gamepad()
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA4_PIN)&1)<<4)
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA5_PIN)&1)<<5);
 	SMD_SELECT_PORT |= 1<<SMD_SELECT_PIN; // Select - high
-	_delay_us(10);
+	_delay_us(50);
 	gamepad_data_high = ((SMD_DATA_PORT_PIN>>SMD_DATA0_PIN)&1) 
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA1_PIN)&1)<<1) 
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA2_PIN)&1)<<2)
@@ -175,7 +175,7 @@ int main()
 		but_dat[5] = 0b11111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
 		int x = 0;
 		int y = 0;
-		int b;
+		int b, c;
 	
 #ifdef N64_ENABLED	
 		uint8_t n64_data[4];
@@ -340,68 +340,71 @@ int main()
 			}
 		}
 #endif
-#ifdef SMD_ENABLED
-		uint16_t smd_gamepad_data = get_smd_gamepad();
-		if (smd_gamepad_data & 0b00001111) // 3-button mode
+#ifdef SMD_ENABLED		
+		for (c = 0; c < 4; c++)
 		{
-			for (b = 0; b <= 13; b++)
+			uint16_t smd_gamepad_data = get_smd_gamepad();
+			if ((smd_gamepad_data & 0b00001111) || (c < 2)) // 3-button mode
 			{
-				if (!((smd_gamepad_data>>b)&1))
+				for (b = 0; b <= 13; b++)
 				{
-					switch (b)
+					if (!((smd_gamepad_data>>b)&1))
 					{
-						case 0: // Up
-							y = 30;
-							break;
-						case 1: // Down
-							y = -30;
-							break;
-						case 4: // A(SMD)/Y(Classic)
-							PRESS_Y;
-							break;
-						case 5: // Start
-							PRESS_START;
-							break;
-						case 10: // Left
-							x = -30;
-							break;
-						case 11: // Right
-							x = 30;
-							break;
-						case 12: // B(SMD)/A(Classic)
-							PRESS_A;
-							break;
-						case 13: // C(SMD)/B(Classic)
-							PRESS_B;
-							break;
+						switch (b)
+						{
+							case 0: // Up
+								y = 30;
+								break;
+							case 1: // Down
+								y = -30;
+								break;
+							case 4: // A(SMD)/Y(Classic)
+								PRESS_Y;
+								break;
+							case 5: // Start
+								PRESS_START;
+								break;
+							case 10: // Left
+								x = -30;
+								break;
+							case 11: // Right
+								x = 30;
+								break;
+							case 12: // B(SMD)/A(Classic)
+								PRESS_A;
+								break;
+							case 13: // C(SMD)/B(Classic)
+								PRESS_B;
+								break;
+						}
 					}
 				}
-			}
-		} else { // 6-button mode
-			for (b = 4; b <= 11; b++)
-			{
-				if (!((smd_gamepad_data>>b)&1))
+			} else { // 6-button mode
+				for (b = 4; b <= 11; b++)
 				{
-					switch (b)
+					if (!((smd_gamepad_data>>b)&1))
 					{
-						case 4: // A(SMD)/Y(Classic)
-							PRESS_Y;
+						switch (b)
+						{
+							case 4: // A(SMD)/Y(Classic)
+								PRESS_Y;
+								break;
+							case 5: // Start
+								PRESS_START;
+								break;
+							case 8: // Z(SMD)/R(Classic)
+								PRESS_R;
+								break;
+							case 9: // Y(SMD)/X(Classic)
+								PRESS_X;
+								break;
+							case 10: // X(SMD)/L(Classic)
+								PRESS_L;
+								break;
+							case 11: // Mode(SMD)/Select(Classic)
+								PRESS_SELECT;
 							break;
-						case 5: // Start
-							PRESS_START;
-							break;							
-						case 8: // X(SMD)/L(Classic)
-							PRESS_L;
-							break;
-						case 9: // Y(SMD)/X(Classic)
-							PRESS_X;
-							break;
-						case 10: // Z(SMD)/R(Classic)
-							PRESS_R;
-							break;
-						case 11: // Mode(SMD)/Select(Classic)
-							PRESS_SELECT;
-							break;
+						}
 					}
 				}
 			}
