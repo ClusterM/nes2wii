@@ -14,8 +14,8 @@ Features:
 Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you need 20MHz crystal for N64 support.
 
 ## Fuses
-Low fuse: 0xCF
-High fuse: 0xC9
+* Low fuse: 0xCF
+* High fuse: 0xC9
 
 ## How to use with PC
 1. Install [GlovePIE](https://sites.google.com/site/carlkenner/glovepie) and [PPJoy](https://www.google.ru/search?q=ppjoy+download)
