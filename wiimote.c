@@ -1,5 +1,6 @@
 #include "wiimote.h"
 #include "wm_crypto.h"
+#include "nes2wii.h"
 
 // pointer to user function
 static void (*wm_sample_event)();
