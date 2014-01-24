@@ -26,7 +26,7 @@ Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you ne
 ## Tested on
 
 * ATMEGA16A, 20MHz crystal
-* NES and N64 controllers (yes, SNES and SMD/Genesis not tested yet)
+* NES, SNES, N64 and SMD controllers
 
 ## Known bugs/problems
 
