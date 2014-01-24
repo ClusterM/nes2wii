@@ -365,12 +365,12 @@ int main()
 								x = 30;
 								GREEN_ON;
 								break;
-							case 12: // B(SMD)/A(Classic)
-								PRESS_A;
+							case 12: // B(SMD)/B(Classic)
+								PRESS_B;
 								GREEN_ON;
 								break;
-							case 13: // C(SMD)/B(Classic)
-								PRESS_B;
+							case 13: // C(SMD)/A(Classic)
+								PRESS_A;
 								GREEN_ON;
 								break;
 						}
