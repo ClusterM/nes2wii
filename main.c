@@ -1,30 +1,7 @@
+#include "nes2wii.h"
 #include "defines.h"
 #include <util/delay.h>
 #include "wiimote.h"
-
-#define WAIT(t) {TCNT0=0; while(TCNT0 < (F_CPU / 1000000UL) * t);}
-
-#define N64SEND(t) {N64_PORT_DDR |= (1<<N64_DATA_PIN); WAIT(t); N64_PORT_DDR &= ~(1<<N64_DATA_PIN);}
-#define N64SEND_1 {N64SEND(1); WAIT(3);}
-#define N64SEND_0 {N64SEND(3); WAIT(1);}
-#define N64SEND_STOP {N64SEND(1); WAIT(2);}
-#define N64SIGNAL (!((N64_PORT_PIN>>N64_DATA_PIN)&1))
-
-#define PRESS_A			but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_B			but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_X			but_dat[5] &= 0b11110111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_Y			but_dat[5] &= 0b11011111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_L			but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-#define PRESS_R			but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-#define PRESS_ZL		but_dat[5] &= 0b01111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_ZR		but_dat[5] &= 0b11111011; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_SELECT 	but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-#define PRESS_START 	but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-#define PRESS_UP		but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_DOWN		but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-#define PRESS_LEFT		but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_RIGHT		but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-
 
 // classic controller id
 const unsigned char classic_controller_id[6] = {0x00, 0x00, 0xA4, 0x20, 0x01, 0x01};
@@ -41,37 +18,39 @@ const unsigned char cal_data[32] = {
 	0x00, 0x00, 0x00, 0x00
 };
 
+volatile int red_led_timer = 0;
+
 uint8_t get_nes_gamepad()
 {
 	uint8_t gamepad_data = 0;
-	NES_PORT &= ~(1<<NES_LATCH_PIN); // Latch
+	NES_PORT_PORT &= ~(1<<NES_LATCH_PIN); // Latch
 	int b;
 	for (b = 0; b < 8; b++)
 	{
-		NES_PORT &= ~(1<<NES_CLOCK_PIN); // Clock
+		NES_PORT_PORT &= ~(1<<NES_CLOCK_PIN); // Clock
 		_delay_us(10);
 		gamepad_data |= (((NES_PORT_PIN>>NES_DATA_PIN)&1)<<b);
-		NES_PORT |= 1<<NES_CLOCK_PIN; // Clock
+		NES_PORT_PORT |= 1<<NES_CLOCK_PIN; // Clock
 		_delay_us(10);
 	}		
-	NES_PORT |= 1<<NES_LATCH_PIN; // Latch
+	NES_PORT_PORT |= 1<<NES_LATCH_PIN; // Latch
 	return gamepad_data;
 }
 
 uint16_t get_snes_gamepad()
 {
 	uint16_t gamepad_data = 0;
-	SNES_PORT &= ~(1<<SNES_LATCH_PIN); // Latch
+	SNES_PORT_PORT &= ~(1<<SNES_LATCH_PIN); // Latch
 	int b;
 	for (b = 0; b < 16; b++)
 	{
-		SNES_PORT &= ~(1<<SNES_CLOCK_PIN); // Clock
+		SNES_PORT_PORT &= ~(1<<SNES_CLOCK_PIN); // Clock
 		_delay_us(10);
 		gamepad_data |= ((uint16_t)((SNES_PORT_PIN>>SNES_DATA_PIN)&1)<<b);
-		SNES_PORT |= 1<<SNES_CLOCK_PIN; // Clock
+		SNES_PORT_PORT |= 1<<SNES_CLOCK_PIN; // Clock
 		_delay_us(10);
 	}		
-	SNES_PORT |= 1<<SNES_LATCH_PIN; // Latch
+	SNES_PORT_PORT |= 1<<SNES_LATCH_PIN; // Latch
 	return gamepad_data;
 }
 
@@ -99,7 +78,7 @@ uint16_t get_smd_gamepad()
 {
 	uint8_t gamepad_data_low = 0;
 	uint8_t gamepad_data_high = 0;
-	SMD_SELECT_PORT &= ~(1<<SMD_SELECT_PIN); // Select - low
+	SMD_SELECT_PORT_PORT &= ~(1<<SMD_SELECT_PIN); // Select - low
 	_delay_us(50);
 	gamepad_data_low = ((SMD_DATA_PORT_PIN>>SMD_DATA0_PIN)&1) 
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA1_PIN)&1)<<1) 
@@ -107,7 +86,7 @@ uint16_t get_smd_gamepad()
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA3_PIN)&1)<<3)
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA4_PIN)&1)<<4)
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA5_PIN)&1)<<5);
-	SMD_SELECT_PORT |= 1<<SMD_SELECT_PIN; // Select - high
+	SMD_SELECT_PORT_PORT |= 1<<SMD_SELECT_PIN; // Select - high
 	_delay_us(50);
 	gamepad_data_high = ((SMD_DATA_PORT_PIN>>SMD_DATA0_PIN)&1) 
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA1_PIN)&1)<<1) 
@@ -120,24 +99,29 @@ uint16_t get_smd_gamepad()
 
 void wiimote_query()
 {
+	RED_ON;
+	red_led_timer = 0;
 }
 
 int main()
 {
+	RED_LED_PORT_DDR |= (1<<RED_LED_PIN); // Red led, output
+	GREEN_LED_PORT_DDR |= (1<<GREEN_LED_PIN); // Red led, output
+	RED_ON;
 	TCCR0 |= _BV(CS00); // Timer 
 #ifdef N64_ENABLED
 	N64_PORT_DDR &= ~(1<<N64_DATA_PIN); // Input
-	N64_PORT &= ~(1<<N64_DATA_PIN); // No pull-up (using external resistor)
+	N64_PORT_PORT &= ~(1<<N64_DATA_PIN); // No pull-up (using external resistor)
 #endif
 #ifdef SNES_ENABLED
 	SNES_PORT_DDR |= 1<<SNES_LATCH_PIN; // Latch, output
 	SNES_PORT_DDR |= 1<<SNES_CLOCK_PIN; // Clock, output
-	SNES_PORT |= 1<<SNES_DATA_PIN; // Data, pull-up
+	SNES_PORT_PORT |= 1<<SNES_DATA_PIN; // Data, pull-up
 #endif
 #ifdef NES_ENABLED
 	NES_PORT_DDR |= 1<<NES_LATCH_PIN; // Latch, output
 	NES_PORT_DDR |= 1<<NES_CLOCK_PIN; // Clock, output
-	NES_PORT |= 1<<NES_DATA_PIN; // Data, pull-up
+	NES_PORT_PORT |= 1<<NES_DATA_PIN; // Data, pull-up
 #endif
 #ifdef SMD_ENABLED
 	SMD_SELECT_PORT_DDR |= 1<<SMD_SELECT_PIN; // Select, output
@@ -147,12 +131,12 @@ int main()
 	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA3_PIN); // Data 3, input
 	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA4_PIN); // Data 4, input
 	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA5_PIN); // Data 5, input
-	SMD_DATA_PORT |= 1<<SMD_DATA0_PIN; // Data 0, pull-up
-	SMD_DATA_PORT |= 1<<SMD_DATA1_PIN; // Data 1, pull-up
-	SMD_DATA_PORT |= 1<<SMD_DATA2_PIN; // Data 2, pull-up
-	SMD_DATA_PORT |= 1<<SMD_DATA3_PIN; // Data 3, pull-up
-	SMD_DATA_PORT |= 1<<SMD_DATA4_PIN; // Data 4, pull-up
-	SMD_DATA_PORT |= 1<<SMD_DATA5_PIN; // Data 5, pull-up
+	SMD_DATA_PORT_PORT |= 1<<SMD_DATA0_PIN; // Data 0, pull-up
+	SMD_DATA_PORT_PORT |= 1<<SMD_DATA1_PIN; // Data 1, pull-up
+	SMD_DATA_PORT_PORT |= 1<<SMD_DATA2_PIN; // Data 2, pull-up
+	SMD_DATA_PORT_PORT |= 1<<SMD_DATA3_PIN; // Data 3, pull-up
+	SMD_DATA_PORT_PORT |= 1<<SMD_DATA4_PIN; // Data 4, pull-up
+	SMD_DATA_PORT_PORT |= 1<<SMD_DATA5_PIN; // Data 5, pull-up
 #endif
 
 	unsigned char but_dat[6]; // struct containing button data
@@ -176,6 +160,7 @@ int main()
 		int x = 0;
 		int y = 0;
 		int b, c;
+		GREEN_OFF;
 	
 #ifdef N64_ENABLED	
 		uint8_t n64_data[4];
@@ -189,6 +174,7 @@ int main()
 			{
 				if (((n64_data[0]>>(7-b))&1))
 				{
+					GREEN_ON;
 					switch (b)
 					{
 						case 0: // A
@@ -222,6 +208,7 @@ int main()
 			{
 				if (((n64_data[1]>>(7-b))&1))
 				{
+					GREEN_ON;
 					switch (b)
 					{
 						case 2: // L
@@ -262,6 +249,7 @@ int main()
 		{
 			if (!((snes_gamepad_data>>b)&1))
 			{
+				GREEN_ON;
 				switch (b)
 				{
 					case 0: // B
@@ -310,6 +298,7 @@ int main()
 		{
 			if (!((nes_gamepad_data>>b)&1))
 			{
+				GREEN_ON;
 				switch (b)
 				{
 					case 0: // A
@@ -354,27 +343,35 @@ int main()
 						{
 							case 0: // Up
 								y = 30;
+								GREEN_ON;
 								break;
 							case 1: // Down
 								y = -30;
+								GREEN_ON;
 								break;
 							case 4: // A(SMD)/Y(Classic)
 								PRESS_Y;
+								GREEN_ON;
 								break;
 							case 5: // Start
 								PRESS_START;
+								GREEN_ON;
 								break;
 							case 10: // Left
 								x = -30;
+								GREEN_ON;
 								break;
 							case 11: // Right
 								x = 30;
+								GREEN_ON;
 								break;
 							case 12: // B(SMD)/A(Classic)
 								PRESS_A;
+								GREEN_ON;
 								break;
 							case 13: // C(SMD)/B(Classic)
 								PRESS_B;
+								GREEN_ON;
 								break;
 						}
 					}
@@ -388,21 +385,27 @@ int main()
 						{
 							case 4: // A(SMD)/Y(Classic)
 								PRESS_Y;
+								GREEN_ON;
 								break;
 							case 5: // Start
 								PRESS_START;
+								GREEN_ON;
 								break;
 							case 8: // Z(SMD)/R(Classic)
 								PRESS_R;
+								GREEN_ON;
 								break;
 							case 9: // Y(SMD)/X(Classic)
 								PRESS_X;
+								GREEN_ON;
 								break;
 							case 10: // X(SMD)/L(Classic)
 								PRESS_L;
+								GREEN_ON;
 								break;
 							case 11: // Mode(SMD)/Select(Classic)
 								PRESS_SELECT;
+								GREEN_ON;
 							break;
 						}
 					}
@@ -415,6 +418,7 @@ int main()
 		wm_newaction(but_dat);
 	
 		_delay_us(10);
+		if (++red_led_timer >= 10) RED_OFF;
 	}
 	return 0;
 }

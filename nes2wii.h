@@ -1,0 +1,68 @@
+#ifndef _NES2WII_H_
+#define _NES2WII_H_
+
+#include "defines.h"
+
+#define GLUE(a,b) a##b
+#define DDR(p) GLUE(DDR,p)
+#define PORT(p) GLUE(PORT,p)
+#define PIN(p) GLUE(PIN,p)
+
+#define twi_port PORT(TWI_PORT)
+#define twi_ddr DDR(TWI_PORT)
+#define twi_scl_pin TWI_SCL_PIN
+#define twi_sda_pin TWI_SDA_PIN
+
+#define N64_PORT_PORT PORT(N64_PORT)
+#define N64_PORT_DDR DDR(N64_PORT)
+#define N64_PORT_PIN PIN(N64_PORT)
+#define N64_DATA_PIN 3
+
+#define NES_PORT_PORT PORT(NES_PORT)
+#define NES_PORT_DDR DDR(NES_PORT)
+#define NES_PORT_PIN PIN(NES_PORT)
+
+#define SNES_PORT_PORT PORT(NES_PORT)
+#define SNES_PORT_DDR DDR(NES_PORT)
+#define SNES_PORT_PIN PIN(NES_PORT)
+
+#define SMD_SELECT_PORT_PORT PORT(SMD_SELECT_PORT)
+#define SMD_SELECT_PORT_DDR DDR(SMD_SELECT_PORT)
+#define SMD_DATA_PORT_PORT PORT(SMD_DATA_PORT)
+#define SMD_DATA_PORT_DDR DDR(SMD_DATA_PORT)
+#define SMD_DATA_PORT_PIN PIN(SMD_DATA_PORT)
+
+#define RED_LED_PORT_PORT PORT(RED_LED_PORT)
+#define RED_LED_PORT_DDR DDR(RED_LED_PORT)
+#define GREEN_LED_PORT_PORT PORT(GREEN_LED_PORT)
+#define GREEN_LED_PORT_DDR DDR(GREEN_LED_PORT)
+
+#define WAIT(t) {TCNT0=0; while(TCNT0 < (F_CPU / 1000000UL) * t);}
+
+#define N64SEND(t) {N64_PORT_DDR |= (1<<N64_DATA_PIN); WAIT(t); N64_PORT_DDR &= ~(1<<N64_DATA_PIN);}
+#define N64SEND_1 {N64SEND(1); WAIT(3);}
+#define N64SEND_0 {N64SEND(3); WAIT(1);}
+#define N64SEND_STOP {N64SEND(1); WAIT(2);}
+#define N64SIGNAL (!((N64_PORT_PIN>>N64_DATA_PIN)&1))
+
+#define PRESS_A			but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_B			but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_X			but_dat[5] &= 0b11110111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_Y			but_dat[5] &= 0b11011111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_L			but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+#define PRESS_R			but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+#define PRESS_ZL		but_dat[5] &= 0b01111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_ZR		but_dat[5] &= 0b11111011; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_SELECT 	but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+#define PRESS_START 	but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+#define PRESS_UP		but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_DOWN		but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+#define PRESS_LEFT		but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+#define PRESS_RIGHT		but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+
+#define RED_ON RED_LED_PORT_PORT |= (1<<RED_LED_PIN);
+#define RED_OFF RED_LED_PORT_PORT &= ~(1<<RED_LED_PIN);
+#define GREEN_ON GREEN_LED_PORT_PORT |= (1<<GREEN_LED_PIN);
+#define GREEN_OFF GREEN_LED_PORT_PORT &= ~(1<<GREEN_LED_PIN);
+
+#endif
