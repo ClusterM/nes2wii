@@ -85,9 +85,9 @@ int get_n64_gamepad(uint8_t* data)
 		for (bit = 0; bit < 8; bit++)
 		{		
 			TCNT0 = 0;
-			while (!N64SIGNAL); if (TCNT0 >= 0xF0) return 0;
+			while (!N64SIGNAL) if (TCNT0 >= 0xF0) return 0;
 			TCNT0 = 0;
-			while(N64SIGNAL); if (TCNT0 >= 0xF0) return 0;
+			while(N64SIGNAL) if (TCNT0 >= 0xF0) return 0;
 			data[b] = data[b]<<1;
 			if (TCNT0 < 0x24 * F_CPU / 20000000UL) data[b] |= 1;
 		}
