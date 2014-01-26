@@ -1,3 +1,9 @@
+/*
+WiiExtensionLibrary (c) Circle of Current
+http://code.google.com/p/circle-of-current/wiki/WiiExtensionLibrary
+*/
+
+
 #include "wiimote.h"
 #include "wm_crypto.h"
 #include "nes2wii.h"
