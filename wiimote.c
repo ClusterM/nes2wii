@@ -96,7 +96,7 @@ void wm_gentabs()
 		tkey[5] = ((wm_ror8((ans[5] ^ t0[7]), (t0[8] % 8)) - t0[5]) ^ t0[9]);
 
 		// compare with actual key
-		if(memcmp(tkey, wm_key, 6) == 0) break; // if match, then use this idx
+		if(memcmp(tkey, (void*)wm_key, 6) == 0) break; // if match, then use this idx
 	}
 
 	// generate encryption from idx key and rand
@@ -167,7 +167,7 @@ void wm_slaveRx(unsigned char addr, unsigned char l)
 void wm_newaction(unsigned char * d)
 {
 	// load button data from user application
-	memcpy(twi_reg, d, 6);
+	memcpy((void*)twi_reg, d, 6);
 }
 
 void wm_init(unsigned char * id, unsigned char * t, unsigned char * cal_data, void (*function)(void))
