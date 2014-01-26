@@ -266,15 +266,19 @@ int main()
 						break;
 					case 4: // Up
 						y = 30;
+						PRESS_UP;
 						break;
 					case 5: // Down
 						y = -30;
+						PRESS_DOWN;
 						break;
 					case 6: // Left
 						x = -30;
+						PRESS_LEFT;
 						break;
 					case 7: // Right
 						x = 30;
+						PRESS_RIGHT;
 						break;
 					case 8: // A
 						PRESS_A;
@@ -315,15 +319,19 @@ int main()
 						break;
 					case 4: // Up
 						y = 30;
+						PRESS_UP;
 						break;
 					case 5: // Down
 						y = -30;
+						PRESS_DOWN;
 						break;
 					case 6: // Left
 						x = -30;
+						PRESS_LEFT;
 						break;
 					case 7: // Right
 						x = 30;
+						PRESS_RIGHT;
 						break;
 				}
 			}
@@ -343,10 +351,12 @@ int main()
 						{
 							case 0: // Up
 								y = 30;
+								PRESS_UP;
 								GREEN_ON;
 								break;
 							case 1: // Down
 								y = -30;
+								PRESS_DOWN;
 								GREEN_ON;
 								break;
 							case 4: // A(SMD)/Y(Classic)
@@ -359,10 +369,12 @@ int main()
 								break;
 							case 10: // Left
 								x = -30;
+								PRESS_LEFT;
 								GREEN_ON;
 								break;
 							case 11: // Right
 								x = 30;
+								PRESS_RIGHT;
 								GREEN_ON;
 								break;
 							case 12: // B(SMD)/B(Classic)
