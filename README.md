@@ -19,9 +19,9 @@ Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you ne
 
 ## How to use with PC
 1. Install [GlovePIE](https://sites.google.com/site/carlkenner/glovepie) and [PPJoy](https://www.google.ru/search?q=ppjoy+download)
-2. Add virtual joystick using PPJoy.
-3. Load "classic_controller.pie" script into GlovePIE and start it.
-4. Connect Wiimote to PC using bluetooth.
+2. Add virtual joystick using PPJoy
+3. Load "classic_controller.pie" script into GlovePIE and start it
+4. Connect Wiimote to PC using bluetooth
 
 ## Tested on
 
@@ -30,7 +30,7 @@ Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you ne
 
 ## Known bugs/problems
 
-* Sometimes you need to reconnect adapter
+* You you need to reconnect adapter after channel start or exit to Wii menu. Maybe separate device detect wire will fix this problem? Or I need to reinitialize device somehow? Dunno :(
 
 ## Author/contacts
 
