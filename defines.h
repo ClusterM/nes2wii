@@ -9,7 +9,7 @@
 
 #define N64_ENABLED
 #define N64_PORT D
-#define N64_DATA_PIN 3
+#define N64_DATA_PIN 7
 
 #define NES_ENABLED
 #define NES_PORT A
