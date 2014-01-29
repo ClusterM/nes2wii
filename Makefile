@@ -1,5 +1,5 @@
 PRG            = nes2wii
-OBJ            = main.o wiimote.o
+OBJ            = main.o wiimote.o gamepad.o
 LFUSE          = CF
 HFUSE          = C9
 MCU_PROGRAMMER = m16

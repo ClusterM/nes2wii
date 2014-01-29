@@ -2,7 +2,9 @@
 #include "defines.h"
 #include <util/delay.h>
 #include <avr/eeprom.h>
+#include <inttypes.h>
 #include "wiimote.h"
+#include "gamepad.h"
 
 // classic controller id
 const unsigned char classic_controller_id[6] = {0x00, 0x00, 0xA4, 0x20, 0x01, 0x01};
@@ -21,121 +23,6 @@ const unsigned char cal_data[32] = {
 
 volatile int red_led_timer = 0;
 
-void init_nes_gamepad()
-{
-	NES_PORT_DDR |= 1<<NES_LATCH_PIN; // Latch, output
-	NES_PORT_DDR |= 1<<NES_CLOCK_PIN; // Clock, output
-	NES_PORT_DDR &= ~(1<<NES_DATA_PIN); // Data, input
-	NES_PORT_PORT |= 1<<NES_DATA_PIN; // Data, pull-up
-}
-
-uint8_t get_nes_gamepad()
-{
-	uint8_t gamepad_data = 0;
-	NES_PORT_PORT &= ~(1<<NES_LATCH_PIN); // Latch
-	int b;
-	for (b = 0; b < 8; b++)
-	{
-		NES_PORT_PORT &= ~(1<<NES_CLOCK_PIN); // Clock
-		_delay_us(10);
-		gamepad_data |= (((NES_PORT_PIN>>NES_DATA_PIN)&1)<<b);
-		NES_PORT_PORT |= 1<<NES_CLOCK_PIN; // Clock
-		_delay_us(10);
-	}		
-	NES_PORT_PORT |= 1<<NES_LATCH_PIN; // Latch
-	return gamepad_data;
-}
-
-void init_snes_gamepad()
-{
-	SNES_PORT_DDR |= 1<<SNES_LATCH_PIN; // Latch, output
-	SNES_PORT_DDR |= 1<<SNES_CLOCK_PIN; // Clock, output
-	SNES_PORT_DDR &= ~(1<<SNES_DATA_PIN); // Data, input
-	SNES_PORT_PORT |= 1<<SNES_DATA_PIN; // Data, pull-up
-}
-
-uint16_t get_snes_gamepad()
-{
-	uint16_t gamepad_data = 0;
-	SNES_PORT_PORT &= ~(1<<SNES_LATCH_PIN); // Latch
-	int b;
-	for (b = 0; b < 16; b++)
-	{
-		SNES_PORT_PORT &= ~(1<<SNES_CLOCK_PIN); // Clock
-		_delay_us(10);
-		gamepad_data |= ((uint16_t)((SNES_PORT_PIN>>SNES_DATA_PIN)&1)<<b);
-		SNES_PORT_PORT |= 1<<SNES_CLOCK_PIN; // Clock
-		_delay_us(10);
-	}		
-	SNES_PORT_PORT |= 1<<SNES_LATCH_PIN; // Latch
-	return gamepad_data;
-}
-
-void init_n64_gamepad()
-{
-	N64_PORT_DDR &= ~(1<<N64_DATA_PIN); // Input
-	N64_PORT_PORT &= ~(1<<N64_DATA_PIN); // No pull-up (using external resistor)
-}
-
-int get_n64_gamepad(uint8_t* data)
-{
-	int b, bit;
-	N64SEND_0; N64SEND_0; N64SEND_0; N64SEND_0; N64SEND_0; N64SEND_0; N64SEND_0; N64SEND_1; N64SEND_STOP;
-	for (b = 0; b < 4; b++)
-	{
-		data[b] = 0;
-		for (bit = 0; bit < 8; bit++)
-		{		
-			TCNT0 = 0;
-			while (!N64SIGNAL) if (TCNT0 >= 0xF0) return 0;
-			TCNT0 = 0;
-			while(N64SIGNAL) if (TCNT0 >= 0xF0) return 0;
-			data[b] = data[b]<<1;
-			if (TCNT0 < 0x24 * F_CPU / 20000000UL) data[b] |= 1;
-		}
-	}
-	return 1;
-}
-
-void init_smd_gamepad()
-{
-	SMD_SELECT_PORT_DDR |= 1<<SMD_SELECT_PIN; // Select, output
-	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA0_PIN); // Data 0, input
-	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA1_PIN); // Data 1, input
-	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA2_PIN); // Data 2, input
-	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA3_PIN); // Data 3, input
-	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA4_PIN); // Data 4, input
-	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA5_PIN); // Data 5, input
-	SMD_DATA_PORT_PORT |= 1<<SMD_DATA0_PIN; // Data 0, pull-up
-	SMD_DATA_PORT_PORT |= 1<<SMD_DATA1_PIN; // Data 1, pull-up
-	SMD_DATA_PORT_PORT |= 1<<SMD_DATA2_PIN; // Data 2, pull-up
-	SMD_DATA_PORT_PORT |= 1<<SMD_DATA3_PIN; // Data 3, pull-up
-	SMD_DATA_PORT_PORT |= 1<<SMD_DATA4_PIN; // Data 4, pull-up
-	SMD_DATA_PORT_PORT |= 1<<SMD_DATA5_PIN; // Data 5, pull-up
-}
-
-uint16_t get_smd_gamepad()
-{
-	uint8_t gamepad_data_low = 0;
-	uint8_t gamepad_data_high = 0;
-	SMD_SELECT_PORT_PORT &= ~(1<<SMD_SELECT_PIN); // Select - low
-	_delay_us(50);
-	gamepad_data_low = ((SMD_DATA_PORT_PIN>>SMD_DATA0_PIN)&1) 
-		| (((SMD_DATA_PORT_PIN>>SMD_DATA1_PIN)&1)<<1) 
-		| (((SMD_DATA_PORT_PIN>>SMD_DATA2_PIN)&1)<<2)
-		| (((SMD_DATA_PORT_PIN>>SMD_DATA3_PIN)&1)<<3)
-		| (((SMD_DATA_PORT_PIN>>SMD_DATA4_PIN)&1)<<4)
-		| (((SMD_DATA_PORT_PIN>>SMD_DATA5_PIN)&1)<<5);
-	SMD_SELECT_PORT_PORT |= 1<<SMD_SELECT_PIN; // Select - high
-	_delay_us(50);
-	gamepad_data_high = ((SMD_DATA_PORT_PIN>>SMD_DATA0_PIN)&1) 
-		| (((SMD_DATA_PORT_PIN>>SMD_DATA1_PIN)&1)<<1) 
-		| (((SMD_DATA_PORT_PIN>>SMD_DATA2_PIN)&1)<<2)
-		| (((SMD_DATA_PORT_PIN>>SMD_DATA3_PIN)&1)<<3)
-		| (((SMD_DATA_PORT_PIN>>SMD_DATA4_PIN)&1)<<4)
-		| (((SMD_DATA_PORT_PIN>>SMD_DATA5_PIN)&1)<<5);
-	return ((uint16_t)gamepad_data_high<<8) | gamepad_data_low;
-}
 
 void wiimote_query()
 {
@@ -148,7 +35,6 @@ int main()
 	RED_LED_PORT_DDR |= (1<<RED_LED_PIN); // Red led, output
 	GREEN_LED_PORT_DDR |= (1<<GREEN_LED_PIN); // Red led, output
 	RED_ON;
-	TCCR0 |= _BV(CS00); // Timer 
 #ifdef N64_ENABLED
 	init_n64_gamepad();
 #endif
