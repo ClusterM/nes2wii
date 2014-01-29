@@ -1,11 +1,11 @@
 # NES2Wii
 
-NES2Wii - NES/SNES/N64/SMD gamepad to Wii remote adapter
+NES2Wii - NES/SNES/N64/SMD/DualShock gamepad to Wii remote adapter
 
 Features:
 
-* You can play Wii virtual console games using original NES/SNES/N64/SMD gamepad!
-* You can connect Wiimote to PC via bluetooth and use original NES/SNES/N64/SMD controllers with emulators
+* You can play Wii virtual console games using original NES/SNES/N64/SMD/DualShock gamepad!
+* You can connect Wiimote to PC via bluetooth and use original NES/SNES/N64/SMD/DualShock controllers with emulators
 
 ## Schematics
 
@@ -26,7 +26,7 @@ Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you ne
 ## Tested on
 
 * ATMEGA16A, 20MHz crystal
-* NES, SNES, N64 and SMD controllers
+* NES, SNES, N64, SMD and DualShock controllers
 
 ## Modes
 There are three modes for NES/SNES/SMD controllers:
