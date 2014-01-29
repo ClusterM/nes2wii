@@ -4,7 +4,6 @@
 #include <avr/eeprom.h>
 #include "wiimote.h"
 
-
 // classic controller id
 const unsigned char classic_controller_id[6] = {0x00, 0x00, 0xA4, 0x20, 0x01, 0x01};
 
@@ -21,6 +20,14 @@ const unsigned char cal_data[32] = {
 };
 
 volatile int red_led_timer = 0;
+
+void init_nes_gamepad()
+{
+	NES_PORT_DDR |= 1<<NES_LATCH_PIN; // Latch, output
+	NES_PORT_DDR |= 1<<NES_CLOCK_PIN; // Clock, output
+	NES_PORT_DDR &= ~(1<<NES_DATA_PIN); // Data, input
+	NES_PORT_PORT |= 1<<NES_DATA_PIN; // Data, pull-up
+}
 
 uint8_t get_nes_gamepad()
 {
@@ -39,6 +46,14 @@ uint8_t get_nes_gamepad()
 	return gamepad_data;
 }
 
+void init_snes_gamepad()
+{
+	SNES_PORT_DDR |= 1<<SNES_LATCH_PIN; // Latch, output
+	SNES_PORT_DDR |= 1<<SNES_CLOCK_PIN; // Clock, output
+	SNES_PORT_DDR &= ~(1<<SNES_DATA_PIN); // Data, input
+	SNES_PORT_PORT |= 1<<SNES_DATA_PIN; // Data, pull-up
+}
+
 uint16_t get_snes_gamepad()
 {
 	uint16_t gamepad_data = 0;
@@ -54,6 +69,12 @@ uint16_t get_snes_gamepad()
 	}		
 	SNES_PORT_PORT |= 1<<SNES_LATCH_PIN; // Latch
 	return gamepad_data;
+}
+
+void init_n64_gamepad()
+{
+	N64_PORT_DDR &= ~(1<<N64_DATA_PIN); // Input
+	N64_PORT_PORT &= ~(1<<N64_DATA_PIN); // No pull-up (using external resistor)
 }
 
 int get_n64_gamepad(uint8_t* data)
@@ -74,6 +95,23 @@ int get_n64_gamepad(uint8_t* data)
 		}
 	}
 	return 1;
+}
+
+void init_smd_gamepad()
+{
+	SMD_SELECT_PORT_DDR |= 1<<SMD_SELECT_PIN; // Select, output
+	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA0_PIN); // Data 0, input
+	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA1_PIN); // Data 1, input
+	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA2_PIN); // Data 2, input
+	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA3_PIN); // Data 3, input
+	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA4_PIN); // Data 4, input
+	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA5_PIN); // Data 5, input
+	SMD_DATA_PORT_PORT |= 1<<SMD_DATA0_PIN; // Data 0, pull-up
+	SMD_DATA_PORT_PORT |= 1<<SMD_DATA1_PIN; // Data 1, pull-up
+	SMD_DATA_PORT_PORT |= 1<<SMD_DATA2_PIN; // Data 2, pull-up
+	SMD_DATA_PORT_PORT |= 1<<SMD_DATA3_PIN; // Data 3, pull-up
+	SMD_DATA_PORT_PORT |= 1<<SMD_DATA4_PIN; // Data 4, pull-up
+	SMD_DATA_PORT_PORT |= 1<<SMD_DATA5_PIN; // Data 5, pull-up
 }
 
 uint16_t get_smd_gamepad()
@@ -112,35 +150,16 @@ int main()
 	RED_ON;
 	TCCR0 |= _BV(CS00); // Timer 
 #ifdef N64_ENABLED
-	N64_PORT_DDR &= ~(1<<N64_DATA_PIN); // Input
-	N64_PORT_PORT &= ~(1<<N64_DATA_PIN); // No pull-up (using external resistor)
+	init_n64_gamepad();
 #endif
 #ifdef SNES_ENABLED
-	SNES_PORT_DDR |= 1<<SNES_LATCH_PIN; // Latch, output
-	SNES_PORT_DDR |= 1<<SNES_CLOCK_PIN; // Clock, output
-	SNES_PORT_DDR &= ~(1<<SNES_DATA_PIN); // Data, input
-	SNES_PORT_PORT |= 1<<SNES_DATA_PIN; // Data, pull-up
+	init_snes_gamepad();
 #endif
 #ifdef NES_ENABLED
-	NES_PORT_DDR |= 1<<NES_LATCH_PIN; // Latch, output
-	NES_PORT_DDR |= 1<<NES_CLOCK_PIN; // Clock, output
-	NES_PORT_DDR &= ~(1<<NES_DATA_PIN); // Data, input
-	NES_PORT_PORT |= 1<<NES_DATA_PIN; // Data, pull-up
+	init_nes_gamepad();
 #endif
 #ifdef SMD_ENABLED
-	SMD_SELECT_PORT_DDR |= 1<<SMD_SELECT_PIN; // Select, output
-	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA0_PIN); // Data 0, input
-	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA1_PIN); // Data 1, input
-	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA2_PIN); // Data 2, input
-	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA3_PIN); // Data 3, input
-	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA4_PIN); // Data 4, input
-	SMD_DATA_PORT_DDR &= ~(1<<SMD_DATA5_PIN); // Data 5, input
-	SMD_DATA_PORT_PORT |= 1<<SMD_DATA0_PIN; // Data 0, pull-up
-	SMD_DATA_PORT_PORT |= 1<<SMD_DATA1_PIN; // Data 1, pull-up
-	SMD_DATA_PORT_PORT |= 1<<SMD_DATA2_PIN; // Data 2, pull-up
-	SMD_DATA_PORT_PORT |= 1<<SMD_DATA3_PIN; // Data 3, pull-up
-	SMD_DATA_PORT_PORT |= 1<<SMD_DATA4_PIN; // Data 4, pull-up
-	SMD_DATA_PORT_PORT |= 1<<SMD_DATA5_PIN; // Data 5, pull-up
+	init_smd_gamepad();
 #endif
 
 	unsigned char but_dat[6]; // struct containing button data
