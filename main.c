@@ -351,6 +351,7 @@ int main()
 		}
 #endif
 #ifdef SMD_ENABLED		
+		char smd_present = 0;
 		for (c = 0; c < 4; c++)
 		{
 			uint16_t smd_gamepad_data = get_smd_gamepad();
@@ -360,6 +361,7 @@ int main()
 				{
 					if (!((smd_gamepad_data>>b)&1))
 					{
+						smd_present = 1; // Coontroller is connected
 						switch (b)
 						{
 							case 0: // Up
@@ -440,6 +442,7 @@ int main()
 				}
 			}
 		}
+		if (smd_present) _delay_us(750); // Need to wait!
 #endif
 		but_dat[0] += x;
 		but_dat[1] += y;
