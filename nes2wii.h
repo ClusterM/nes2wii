@@ -27,6 +27,7 @@
 #define PRESS_DOWN		but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 #define PRESS_LEFT		but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
 #define PRESS_RIGHT		but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
+#define PRESS_HOME		but_dat[4] &= 0b11110111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 
 #define RED_LED_PORT_PORT PORT(RED_LED_PORT)
 #define RED_LED_PORT_DDR DDR(RED_LED_PORT)

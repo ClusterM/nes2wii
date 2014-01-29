@@ -47,6 +47,9 @@ int main()
 #ifdef SMD_ENABLED
 	init_smd_gamepad();
 #endif
+#ifdef DUALSHOCK_ENABLED
+	init_dualshock_gamepad();
+#endif
 
 	unsigned char but_dat[6]; // struct containing button data
 	but_dat[0] = 0b01011111; // RX<4:3>	LX<5:0>
@@ -156,6 +159,101 @@ int main()
 			x = x * 30 / 80;
 			y = y * 30 / 80;
 		}
+#endif
+#ifdef DUALSHOCK_ENABLED
+		uint8_t dualshock_data[9];
+		if (get_dualshock_gamepad(dualshock_data, 9, 0, 0))
+		{
+			for (b = 0; b < 8; b++)
+			{
+				if (!((dualshock_data[3]>>b)&1))
+				{
+					GREEN_ON;
+					switch (b)
+					{
+						case 0:
+							PRESS_SELECT;
+							break;
+						case 1: // L3
+							PRESS_HOME;
+							PRESS_SELECT;
+							break;
+						case 2: // R3
+							PRESS_HOME;
+							PRESS_START;
+							break;
+						case 3:
+							PRESS_START;
+							break;
+						case 4:
+							PRESS_UP;
+							break;
+						case 5:
+							PRESS_RIGHT;
+							break;
+						case 6:
+							PRESS_DOWN;
+							break;
+						case 7:
+							PRESS_LEFT;
+							break;
+					}
+				}
+			}
+			for (b = 0; b < 8; b++)
+			{
+				if (!((dualshock_data[4]>>b)&1))
+				{
+					GREEN_ON;
+					switch (b)
+					{
+						case 0: // L2
+							PRESS_ZL;
+							break;
+						case 1: // R2
+							PRESS_ZR
+							break;
+						case 2: // L1
+							PRESS_L;
+							break;
+						case 3: // R1
+							PRESS_R;
+							break;
+						case 4: // Triangle
+							PRESS_X;
+							break;
+						case 5: // O
+							PRESS_A;
+							break;
+						case 6: // X
+							PRESS_B;
+							break;
+						case 7: // Square
+							PRESS_Y;
+							break;
+					}
+				}
+			}
+			if (dualshock_data[1]>>4 == 0x07) // Analog mode
+			{
+				x = (dualshock_data[7]-128)*30/128;
+				y = -(dualshock_data[8]-128)*30/128;
+				if (x < 7 && x > -7) x = 0; // Dead zone X
+				if (y < 7 && y > -7) y = 0; // Dead zone Y
+				uint8_t x2 = dualshock_data[5]>>3;
+				uint8_t y2 = (0xFF-dualshock_data[6])>>3;
+				x2 &= ~1; // Dead zone X
+				y2 &= ~1; // Dead zone y
+				
+				but_dat[0] &= ~0b11000000; // RX<4:3>	LX<5:0>
+				but_dat[1] &= ~0b11000000; // RX<2:1>	LY<5:0>		
+				but_dat[2] &= ~0b10011111; // RX<0>	LT<4:3>	RY<4:0>				
+				but_dat[0] |= ((x2>>3)&0b11)<<6;
+				but_dat[1] |= ((x2>>1)&0b11)<<6;
+				but_dat[2] |= (x2&1)<<7;
+				but_dat[2] |= y2;
+			}
+		}		
 #endif
 #ifdef SNES_ENABLED
 		uint16_t snes_gamepad_data = get_snes_gamepad();
@@ -352,6 +450,7 @@ int main()
 		}
 		if (smd_present) _delay_us(750); // Need to wait!
 #endif
+
 		but_dat[0] += x;
 		but_dat[1] += y;
 		wm_newaction(but_dat);
