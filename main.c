@@ -118,11 +118,13 @@ int main()
 #ifdef SNES_ENABLED
 	SNES_PORT_DDR |= 1<<SNES_LATCH_PIN; // Latch, output
 	SNES_PORT_DDR |= 1<<SNES_CLOCK_PIN; // Clock, output
+	SNES_PORT_DDR &= ~(1<<SNES_DATA_PIN); // Data, input
 	SNES_PORT_PORT |= 1<<SNES_DATA_PIN; // Data, pull-up
 #endif
 #ifdef NES_ENABLED
 	NES_PORT_DDR |= 1<<NES_LATCH_PIN; // Latch, output
 	NES_PORT_DDR |= 1<<NES_CLOCK_PIN; // Clock, output
+	NES_PORT_DDR &= ~(1<<NES_DATA_PIN); // Data, input
 	NES_PORT_PORT |= 1<<NES_DATA_PIN; // Data, pull-up
 #endif
 #ifdef SMD_ENABLED
@@ -406,6 +408,7 @@ int main()
 						}
 					}
 				}
+				if (!smd_present) break; // Saving time
 			} else { // 6-button mode
 				for (b = 4; b <= 11; b++)
 				{
