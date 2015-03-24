@@ -39,6 +39,7 @@ You can hold Start+A+B for a few seconds to change mode. Green led will blink 1/
 ## Known bugs/problems
 
 * You you need to reconnect adapter after channel start or exit to Wii menu. Maybe separate device detect wire will fix this problem? Or I need to reinitialize device somehow? Dunno :(
+* Now working with new Wii U games like Mario Kart 8. Some protection against unlicensed controllers?
 
 ## Author/contacts
 
