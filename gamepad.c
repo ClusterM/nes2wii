@@ -3,6 +3,8 @@
 #include <util/delay.h>
 #include "gamepad.h"
 
+#ifdef NES_ENABLED
+
 void init_nes_gamepad()
 {
 	NES_PORT_DDR |= 1<<NES_LATCH_PIN; // Latch, output
@@ -27,7 +29,9 @@ uint8_t get_nes_gamepad()
 	NES_PORT_PORT |= 1<<NES_LATCH_PIN; // Latch
 	return gamepad_data;
 }
+#endif
 
+#ifdef SNES_ENABLED
 void init_snes_gamepad()
 {
 	SNES_PORT_DDR |= 1<<SNES_LATCH_PIN; // Latch, output
@@ -52,7 +56,9 @@ uint16_t get_snes_gamepad()
 	SNES_PORT_PORT |= 1<<SNES_LATCH_PIN; // Latch
 	return gamepad_data;
 }
+#endif
 
+#ifdef N64_ENABLED
 void init_n64_gamepad()
 {
 	TCCR0 |= _BV(CS00); // Timer 
@@ -79,7 +85,9 @@ int get_n64_gamepad(uint8_t* data)
 	}
 	return 1;
 }
+#endif
 
+#ifdef SMD_ENABLED
 void init_smd_gamepad()
 {
 	SMD_SELECT_PORT_DDR |= 1<<SMD_SELECT_PIN; // Select, output
@@ -119,7 +127,9 @@ uint16_t get_smd_gamepad()
 		| (((SMD_DATA_PORT_PIN>>SMD_DATA5_PIN)&1)<<5);
 	return ((uint16_t)gamepad_data_high<<8) | gamepad_data_low;
 }
+#endif
 
+#ifdef DUALSHOCK_ENABLED
 void init_dualshock_gamepad()
 {
 	DUALSHOCK_PORT_DDR |= (1<<DUALSHOCK_COMMAND_PIN); // Command pin - output
@@ -210,3 +220,4 @@ int get_dualshock_gamepad(uint8_t* data, int size, uint8_t motor_small, uint8_t 
 	}
 	return 1;
 }
+#endif
