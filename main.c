@@ -22,8 +22,6 @@ const unsigned char cal_data[32] = {
 	0x00, 0x00, 0x00, 0x00
 };
 
-volatile int red_led_timer = 0;
-
 void wiimote_query()
 {
 	wdt_reset();
