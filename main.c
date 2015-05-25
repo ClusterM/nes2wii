@@ -476,9 +476,9 @@ int main()
 				for (m = 0; m <= mode; m++)
 				{
 					GREEN_ON;
-					_delay_ms(500);
+					_delay_ms(200);
 					GREEN_OFF;
-					_delay_ms(500);
+					_delay_ms(200);
 				}
 				_delay_ms(1000);
 			}
