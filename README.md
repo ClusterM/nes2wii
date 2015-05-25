@@ -30,15 +30,14 @@ Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you ne
 
 ## Modes
 There are three modes for NES/SNES/SMD controllers:
-* Mode #1 - D-Pad works as left analog stick and D-Pad on classic controller at the same time
-* Mode #2 - D-Pad works as left analog stick only
-* Mode #3 - D-Pad works as D-Pad only
+* Mode #1 - d-pad works as left analog stick and D-Pad on classic controller at the same time
+* Mode #2 - d-pad works as left analog stick only
+* Mode #3 - d-pad works as d-pad only
 
 You can hold Start+A+B for a few seconds to change mode. Green led will blink 1/2/3 times indicating new mode.
 
 ## Known bugs/problems
 
-* You you need to reconnect adapter after channel start or exit to Wii menu. Maybe separate device detect wire will fix this problem? Or I need to reinitialize device somehow? Dunno :(
 * Now working with new Wii U games like Mario Kart 8. Some protection against unlicensed controllers?
 
 ## Author/contacts
