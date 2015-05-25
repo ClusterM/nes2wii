@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include "wiimote.h"
 #include "gamepad.h"
+#include <avr/wdt.h>
 
 // classic controller id
 const unsigned char classic_controller_id[6] = {0x00, 0x00, 0xA4, 0x20, 0x01, 0x01};
@@ -23,18 +24,20 @@ const unsigned char cal_data[32] = {
 
 volatile int red_led_timer = 0;
 
-
 void wiimote_query()
 {
+	wdt_reset();
 	RED_ON;
-	red_led_timer = 0;
 }
 
 int main()
 {
 	RED_LED_PORT_DDR |= (1<<RED_LED_PIN); // Red led, output
 	GREEN_LED_PORT_DDR |= (1<<GREEN_LED_PIN); // Red led, output
-	RED_ON;
+#ifdef DETECT_PORT_DDR
+	WII_DISCONNECT;
+	DETECT_PORT_DDR |= (1<<DETECT_PIN);
+#endif	
 #ifdef N64_ENABLED
 	init_n64_gamepad();
 #endif
@@ -52,18 +55,12 @@ int main()
 #endif
 
 	unsigned char but_dat[6]; // struct containing button data
-	but_dat[0] = 0b01011111; // RX<4:3>	LX<5:0>
-	but_dat[1] = 0b11011111; // RX<2:1>	LY<5:0>
-	but_dat[2] = 0b10001111; // RX<0>	LT<4:3>	RY<4:0>
-	but_dat[3] = 0b00000000; // LT<2:0>	RT<4:0>
-	but_dat[4] = 0b11111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-	but_dat[5] = 0b11111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-
-	wm_init((void*)classic_controller_id, but_dat, (void*)cal_data, wiimote_query);
 
 	uint8_t mode = eeprom_read_byte((void*)0); // current mode
 	if (mode > 2) mode = 0;
 	int mode_change_timer = 0; // buttons combination hold time
+
+	uint8_t connected = 0;
 
 	while(1)
 	{
@@ -73,6 +70,16 @@ int main()
 		but_dat[3] = 0b00000000; // LT<2:0>	RT<4:0>
 		but_dat[4] = 0b11111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
 		but_dat[5] = 0b11111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
+
+		if (!connected)
+		{
+			_delay_ms(1000);
+			connected = 1;
+			WII_CONNECT;
+			wm_init((void*)classic_controller_id, but_dat, (void*)cal_data, wiimote_query);
+			wdt_enable(WDTO_1S);
+		}
+		
 		int x = 0;
 		int y = 0;
 		int b, c;
@@ -448,15 +455,11 @@ int main()
 				}
 			}
 		}
-		if (smd_present) _delay_us(750); // Need to wait!
 #endif
 
 		but_dat[0] += x;
 		but_dat[1] += y;
 		wm_newaction(but_dat);
-	
-		_delay_us(10);
-		if (++red_led_timer >= 10) RED_OFF;
 		if (mode_change_counter == 3) // A+B+Start pressed?
 		{
 			mode_change_timer++;
@@ -480,7 +483,8 @@ int main()
 				_delay_ms(1000);
 			}
 		} else mode_change_timer = 0;
+	
+		_delay_ms(1);
 	}
 	return 0;
 }
-
