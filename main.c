@@ -25,6 +25,7 @@ const unsigned char cal_data[32] = {
 void wiimote_query()
 {
 	wdt_reset();
+	wdt_enable(WDTO_15MS);
 	RED_ON;
 }
 
@@ -71,11 +72,11 @@ int main()
 
 		if (!connected)
 		{
-			_delay_ms(1000);
+			_delay_ms(100);
 			connected = 1;
 			WII_CONNECT;
 			wm_init((void*)classic_controller_id, but_dat, (void*)cal_data, wiimote_query);
-			wdt_enable(WDTO_1S);
+			wdt_enable(WDTO_2S);
 		}
 		
 		int x = 0;
@@ -461,7 +462,7 @@ int main()
 		if (mode_change_counter == 3) // A+B+Start pressed?
 		{
 			mode_change_timer++;
-			if (mode_change_timer >= 2000) // For a long time?
+			if (mode_change_timer >= 1000) // For a long time?
 			{
 				mode_change_timer = 0;
 				mode++; // Changing current mode...
