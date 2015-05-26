@@ -18,10 +18,7 @@ Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you ne
 * High fuse: 0xC9
 
 ## How to use with PC
-1. Install [GlovePIE](https://sites.google.com/site/carlkenner/glovepie) and [PPJoy](https://www.google.ru/search?q=ppjoy+download)
-2. Add virtual joystick using PPJoy
-3. Load "classic_controller.pie" script into GlovePIE and start it
-4. Connect Wiimote to PC using bluetooth
+Just install HID Wiimote driver by Julian Lohr: [http://julianloehr.de/educational-work/hid-wiimote/](http://julianloehr.de/educational-work/hid-wiimote/ "http://julianloehr.de/educational-work/hid-wiimote/")
 
 ## Tested on
 
