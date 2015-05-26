@@ -72,7 +72,7 @@ int main()
 
 		if (!connected)
 		{
-			_delay_ms(500);
+			_delay_ms(100);
 			connected = 1;
 			WII_CONNECT;
 			wm_init((void*)classic_controller_id, but_dat, (void*)cal_data, wiimote_query);
