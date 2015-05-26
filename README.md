@@ -30,7 +30,7 @@ Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you ne
 
 ## Modes
 There are three modes for NES/SNES/SMD controllers:
-* Mode #1 - d-pad works as left analog stick and D-Pad on classic controller at the same time
+* Mode #1 - d-pad works as left analog stick and d-pad on classic controller at the same time
 * Mode #2 - d-pad works as left analog stick only
 * Mode #3 - d-pad works as d-pad only
 
