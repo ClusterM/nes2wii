@@ -11,7 +11,7 @@ Features:
 
 ![Schematics](nes2wii.png)
 
-Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you need 20MHz crystal for N64 support.
+Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you need 20MHz crystal for N64 support. 8MHz is fine if you don't need N64.
 
 ## Fuses
 * Low fuse: 0xCF
@@ -23,6 +23,7 @@ Just install HID Wiimote driver by Julian Lohr: [http://julianloehr.de/education
 ## Tested on
 
 * ATMEGA16A, 20MHz crystal
+* ATMEGA8, 8MHz (without N64 support)
 * NES, SNES, N64, SMD and DualShock controllers
 
 ## Modes
@@ -32,6 +33,11 @@ There are three modes for NES/SNES/SMD controllers:
 * Mode #3 - d-pad works as d-pad only
 
 You can hold Start+A+B for a few seconds to change mode. Green led will blink 1/2/3 times indicating new mode.
+
+## Notes
+
+* You can select pins and required controllers in *defines.h*.
+* *Detect* (*DTCT*) wire is optional but recommended to prevent some glitches. If not used it must be connected directly to VCC.
 
 ## Known bugs/problems
 

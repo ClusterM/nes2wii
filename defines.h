@@ -6,8 +6,8 @@
 #define TWI_PORT C
 #define TWI_SCL_PIN 0
 #define TWI_SDA_PIN 1
-//#define DETECT_PORT C
-//#define DETECT_PIN 2
+#define DETECT_PORT D
+#define DETECT_PIN 0
 
 #define N64_ENABLED
 #define N64_PORT D
