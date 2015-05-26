@@ -14,13 +14,9 @@
 #define twi_sda_pin TWI_SDA_PIN
 
 #ifdef DETECT_PORT
-#define DETECT_PORT_PORT PORT(DETECT_PORT)
-#define DETECT_PORT_DDR DDR(DETECT_PORT)
-#define WII_CONNECT	DETECT_PORT_PORT |= (1<<DETECT_PIN)
-#define WII_DISCONNECT	DETECT_PORT_PORT &= ~(1<<DETECT_PIN)
-#else
-#define WII_CONNECT 
-#define WII_DISCONNECT 
+#define dev_detect_port PORT(DETECT_PORT)
+#define dev_detect_ddr DDR(DETECT_PORT)
+#define dev_detect_pin DETECT_PIN
 #endif
 
 #define PRESS_A			but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU

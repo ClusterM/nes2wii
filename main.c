@@ -33,10 +33,6 @@ int main()
 {
 	RED_LED_PORT_DDR |= (1<<RED_LED_PIN); // Red led, output
 	GREEN_LED_PORT_DDR |= (1<<GREEN_LED_PIN); // Red led, output
-#ifdef DETECT_PORT_DDR
-	WII_DISCONNECT;
-	DETECT_PORT_DDR |= (1<<DETECT_PIN);
-#endif	
 #ifdef N64_ENABLED
 	init_n64_gamepad();
 #endif
@@ -72,10 +68,8 @@ int main()
 
 		if (!connected)
 		{
-			_delay_ms(100);
-			connected = 1;
-			WII_CONNECT;
 			wm_init((void*)classic_controller_id, but_dat, (void*)cal_data, wiimote_query);
+			connected = 1;
 			wdt_enable(WDTO_2S);
 		}
 		
