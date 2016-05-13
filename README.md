@@ -1,51 +1,53 @@
 # NES2Wii
 
-NES2Wii - NES/SNES/N64/SMD/DualShock gamepad to Wii remote adapter
+NES2Wii - адаптер контроллеров NES/SNES/N64/SMD/DualShock на Wiimote 
 
-Features:
+Особенности:
 
-* You can play Wii virtual console games using original NES/SNES/N64/SMD/DualShock gamepad!
-* You can connect Wiimote to PC via bluetooth and use original NES/SNES/N64/SMD/DualShock controllers with emulators
+* Вы можете играть в игры Virtual Console на Wii, используя оригинальные контроллеры NES/SNES/N64/SMD/DualShock!
+* Вы можете подключить Wiimote к ПК по BlueTooth и использовать оригинальные контроллеры NES/SNES/N64/SMD/DualShock в эмуляторах
 
-## Schematics
+## Схема:
 
 ![Schematics](nes2wii.png)
 
-Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you need 20MHz crystal for N64 support. 8MHz is fine if you don't need N64.
+Используется микроконтроллер ATMEGA16 или любая другая ATMEGA (просто перекомпилируйте исходный код). 
+Для поддержки контроллера N64 используйте внешний кварцевый генератор на 20 МГц. 
+Если не требуется поддержка контроллера N64, то можно использовать внутренний кварцевый генератор микроконтроллера.
 
-## Fuses
+## Фьюзы
 * Low fuse: 0xCF
 * High fuse: 0xC9
 
-## How to use with PC
-Just install HID Wiimote driver by Julian Lohr: [http://julianloehr.de/educational-work/hid-wiimote/](http://julianloehr.de/educational-work/hid-wiimote/ "http://julianloehr.de/educational-work/hid-wiimote/")
+## Использование на ПК
+Просто установите HID-драйвер Wiimote-контроллера: [http://julianloehr.de/educational-work/hid-wiimote/](http://julianloehr.de/educational-work/hid-wiimote/ "http://julianloehr.de/educational-work/hid-wiimote/")
 
-## Tested on
+## Протестировано на:
 
-* ATMEGA16A, 20MHz crystal
-* ATMEGA8, 8MHz (without N64 support)
-* NES, SNES, N64, SMD and DualShock controllers
+* ATMEGA16A с внешним кварцевым генератором на 20 МГц
+* ATMEGA8 с внутренним кварцевым генератором на 8 Мгц (без поддержки контроллера N64)
+* Контроллерах NES, SNES, N64, SMD и DualShock
 
-## Modes
-There are three modes for NES/SNES/SMD controllers:
-* Mode #1 - d-pad works as left analog stick and d-pad on classic controller at the same time
-* Mode #2 - d-pad works as left analog stick only
-* Mode #3 - d-pad works as d-pad only
+## Режимы:
+Используется три режима для контроллеров NES/SNES/SMD:
+* Режим #1 - Крестовина работает как левый аналоговый стик и как крестовина Wii Classic Controller'а одновременно
+* Режим #2 - Крестовина работает только как левый аналоговый стик Wii Classic Controller'а
+* Режим #3 - Крестовина работает только как крестовина Wii Classic Controller'а
 
-You can hold Start+A+B for a few seconds to change mode. Green led will blink 1/2/3 times indicating new mode.
+Для смены режима одновременно зажмите Start+A+B на несколько секунд. Зеленый светодиод мигнет 1/2/3 раза при установке нового режима.
 
-## Notes
+## Заметки
 
-* You can select pins and required controllers in *defines.h*.
-* *Detect* (*DTCT*) wire is optional but recommended to prevent some glitches. If not used it must be connected directly to VCC.
+* Вы можете выбрать ножки микроконтроллера и какие колнтроллеры нужны в файле *defines.h*.
+* Провод *Detect* (*DTCT*) опционален, но может привести к некоторым глюкам. Если он не используется, то подключайте его к цепи питания (VCC).
 
-## Known bugs/problems
+## Замеченные баги/проблемы
 
-* Now working with new Wii U games like Mario Kart 8. Some protection against unlicensed controllers?
+* Работает с новыми играми на Wii U, например Mario Kart 8. Очередная защита от нелецензионных контроллеров?
 
-## Author/contacts
+## Автор/Контакты
 
-**Alexey 'Cluster' Avdyukhin**
+**Алексей 'Cluster' Авдюхин**
 
 clusterrr@clusterrr.com
 
