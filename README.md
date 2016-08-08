@@ -41,7 +41,8 @@ You can hold Start+A+B for a few seconds to change mode. Green led will blink 1/
 
 ## Known bugs/problems
 
-* Now working with new Wii U games like Mario Kart 8. Some protection against unlicensed controllers?
+* Not working with new Wii U games like Mario Kart 8. Some protection against unlicensed controllers?
+* Not working with new wiimotes (with MotionPlus). Seems like protection, again.
 
 ## Author/contacts
 
