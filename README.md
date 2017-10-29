@@ -11,7 +11,7 @@ Features:
 
 ![Schematics](board/nes2wii.png)
 
-Just ATMEGA16 (or any other ATMEGA, just recompile source code). You need 16MHz crystal for N64. 8MHz internal oscillator is fine if you don't need N64.
+Just ATMEGA16A (or any other low-power ATMEGA). You need 16MHz crystal for N64. 8MHz internal oscillator is fine if you don't need N64.
 
 ## Fuses (for ATMEGA16 with crystal)
 
@@ -25,7 +25,7 @@ Just install HID Wiimote driver by Julian Lohr: [http://julianloehr.de/education
 ## Tested on
 
 * ATMEGA16A, 16MHz crystal
-* ATMEGA8, 8MHz (without N64 support)
+* ATMEGA8A, 8MHz (without N64 support)
 * NES, SNES, N64, SMD and DualShock controllers
 
 ## Modes
