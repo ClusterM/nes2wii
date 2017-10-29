@@ -48,4 +48,6 @@
 #define GREEN_LED_PORT D
 #define GREEN_LED_PIN 7
 
+#define DEAD_ZONE 32
+
 #endif

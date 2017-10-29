@@ -167,7 +167,7 @@ static int8_t dualshock_command(uint8_t* command, uint8_t* data, int length, uin
 		PORT(DUALSHOCK_PORT) |= (1 << DUALSHOCK2_ATT_PIN); // No attention...
 #endif
 	}
-	_delay_us(10);
+	_delay_us(25);
 	return result;
 }
 
@@ -201,8 +201,7 @@ static uint8_t get_dualshock_gamepad(uint8_t* data, int size, uint8_t motor_smal
 		if (!dualshock_command(command_config_mode, 0, sizeof(command_config_mode), controller_number)) return 0;
 		if (!dualshock_command(command_config_pressure, 0, sizeof(command_config_pressure), controller_number)) return 0;
 		if (!dualshock_command(command_config_mode_exit, 0, sizeof(command_config_mode_exit), controller_number)) return 0;
-		uint8_t command_query_again[21] = {0x01, 0x42, 0, motor_small, motor_large, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		if (!dualshock_command(command_query_again, data, size, controller_number))
+		if (!dualshock_command(command_query, data, size, controller_number))
 		{
 			dualshock_configered[controller_number] = 0;
 			return 0;
@@ -220,14 +219,18 @@ static void dualshock_decode(uint8_t controller_number, struct dualshock_state* 
 		dualshock->connected = 1;
 		dualshock->analog = (dualshock_data[1] & 0xF0) == 0x70;
 		dualshock->pressure = (dualshock_data[1] & 0xFF) == 0x79;
-		if (!dualshock->analog)	memset((void*)&dualshock_data[5], 0, 4);
+		if (!dualshock->analog)
+		{
+			memset((void*)&dualshock_data[5], 0, 4);
+		} else {
+			dualshock_data[5] = (int8_t)((int8_t)dualshock_data[5]-0x80);
+			dualshock_data[6] = (int8_t)((int8_t)dualshock_data[6]-0x80);
+			dualshock_data[7] = (int8_t)((int8_t)dualshock_data[7]-0x80);
+			dualshock_data[8] = (int8_t)((int8_t)dualshock_data[8]-0x80);
+		}
 		if (!dualshock->pressure) memset((void*)&dualshock_data[9], 0, 12);
 		dualshock_data[3] = ~dualshock_data[3];
 		dualshock_data[4] = ~dualshock_data[4];
-		dualshock_data[5] = (int8_t)(dualshock_data[5]-0x80);
-		dualshock_data[6] = (int8_t)(dualshock_data[6]-0x80);
-		dualshock_data[7] = (int8_t)(dualshock_data[7]-0x80);
-		dualshock_data[8] = (int8_t)(dualshock_data[8]-0x80);
 		memcpy((void*)dualshock, (void*)&dualshock_data[3], 18);
 	} else {
 		memset((void*)dualshock, 0, sizeof(struct dualshock_state));

@@ -79,7 +79,9 @@ void wiimote_query()
 		but_dat[6] = 0;
 		but_dat[7] = 0;
 		
-		if (((but_dat[4] & 0xFE) == 0xFE) && (but_dat[5] == 0xFF))
+		if (((but_dat[4] & 0xFE) == 0xFE) && (but_dat[5] == 0xFF) && 
+			(ABS(jx) < DEAD_ZONE) && (ABS(jy) < DEAD_ZONE) &&
+			(ABS(rx) < DEAD_ZONE) && (ABS(ry) < DEAD_ZONE))
 			GREEN_OFF;
 		else
 			GREEN_ON;
@@ -115,7 +117,9 @@ void wiimote_query()
 		if (left) but_dat[7] &= ~(1<<1);
 		if (up) but_dat[7] &= ~(1<<0);
 
-		if (((but_dat[6] & 0xFE) == 0xFE) && (but_dat[7] == 0xFF))
+		if (((but_dat[6] & 0xFE) == 0xFE) && (but_dat[7] == 0xFF) &&
+			(ABS(jx) < DEAD_ZONE) && (ABS(jy) < DEAD_ZONE) &&
+			(ABS(rx) < DEAD_ZONE) && (ABS(ry) < DEAD_ZONE))
 			GREEN_OFF;
 		else
 			GREEN_ON;
