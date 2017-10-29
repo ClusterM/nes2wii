@@ -5,6 +5,7 @@ NES2Wii - NES/SNES/N64/SMD/DualShock gamepad to Wii remote adapter
 Features:
 
 * You can play Wii virtual console games using original NES/SNES/N64/SMD/DualShock gamepad!
+* You can use original NES/SNES/N64/SMD/DualShock controllers with NES Mini or SNES Mini
 * You can connect Wiimote to PC via bluetooth and use original NES/SNES/N64/SMD/DualShock controllers with emulators
 
 ## Schematics
