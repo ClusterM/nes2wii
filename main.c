@@ -162,17 +162,21 @@ int main()
 		zl = n64_1.z || dualshock1.l2;
 		zr = dualshock1.r2;
 
-		up = n64_1.up || dualshock1.up;
-		down = n64_1.down || dualshock1.down;
-		left = n64_1.left || dualshock1.left;
-		right = n64_1.right || dualshock1.right;
+		uint8_t tmp_up = n64_1.up || dualshock1.up;
+		uint8_t tmp_down = n64_1.down || dualshock1.down;
+		uint8_t tmp_left = n64_1.left || dualshock1.left;
+		uint8_t tmp_right = n64_1.right || dualshock1.right;
 		if (dpad_mode == DPAD_MODE_BOTH || dpad_mode == DPAD_MODE_DPAD)
 		{
-			up |= nes1.up || nes2.up || nes3.up || snes1.up || smd1.up;
-			down |= nes1.down || nes2.down || nes3.down || snes1.down || smd1.down;
-			left |= nes1.left || nes2.left || nes3.left || snes1.left || smd1.left;
-			right |= nes1.right || nes2.right || nes3.right || snes1.right || smd1.right;
+			tmp_up |= nes1.up || nes2.up || nes3.up || snes1.up || smd1.up;
+			tmp_down |= nes1.down || nes2.down || nes3.down || snes1.down || smd1.down;
+			tmp_left |= nes1.left || nes2.left || nes3.left || snes1.left || smd1.left;
+			tmp_right |= nes1.right || nes2.right || nes3.right || snes1.right || smd1.right;
 		}
+		up = tmp_up;
+		down = tmp_down;
+		left = tmp_left;
+		right = tmp_right;
 
 		int temp_jx = 0;
 		int temp_jy = 0;

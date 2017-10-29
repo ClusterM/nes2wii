@@ -238,6 +238,7 @@ static void dualshock_decode(uint8_t controller_number, struct dualshock_state* 
 }
 #endif
 
+#ifdef N64_PORT
 static uint8_t get_nintendo64_gamepad(uint32_t* data, uint8_t controller_number)
 {
 	uint8_t b;
@@ -280,6 +281,7 @@ static uint8_t get_nintendo64_gamepad(uint32_t* data, uint8_t controller_number)
 	*data = n64_data;
 	return 1;
 }
+#endif
 
 void gamepads_query()
 {
