@@ -18,8 +18,8 @@ static volatile unsigned char wm_ft[8];
 static volatile unsigned char wm_sb[8];
 
 // virtual register
-static volatile unsigned char twi_reg[256];
-static volatile unsigned int twi_reg_addr;
+volatile unsigned char twi_reg[256];
+volatile unsigned int twi_reg_addr;
 
 static volatile unsigned char twi_first_addr_flag; // set address flag
 static volatile unsigned char twi_rw_len; // length of most recent operation
@@ -121,7 +121,8 @@ void wm_gentabs()
 
 void wm_slaveTxStart(unsigned char addr)
 {
-	if(addr >= 0x00 && addr < 0x06)
+	//twi_reg[0xfe] = 1;
+	if(addr >= 0x00 && addr < 0x08)
 	{
 		// call user event
 		wm_sample_event();
@@ -167,16 +168,19 @@ void wm_slaveRx(unsigned char addr, unsigned char l)
 void wm_newaction(unsigned char * d)
 {
 	// load button data from user application
-	memcpy((void*)twi_reg, d, 6);
+	memcpy((void*)twi_reg, d, 8);
 }
 
-void wm_init(unsigned char * id, unsigned char * t, unsigned char * cal_data, void (*function)(void))
+void wm_init(unsigned char * id, unsigned char * cal_data, void (*function)(void))
 {
+	// ready twi bus, no pull-ups
+	twi_port &= 0xFF ^ _BV(twi_scl_pin);
+	twi_port &= 0xFF ^ _BV(twi_sda_pin);
+
 	// link user function
 	wm_sample_event = function;
 
 	// start state
-	wm_newaction(t);
 	twi_reg[0xF0] = 0; // disable encryption
 
 	// set id
@@ -197,10 +201,6 @@ void wm_init(unsigned char * id, unsigned char * t, unsigned char * cal_data, vo
 	dev_detect_port &= 0xFF ^ _BV(dev_detect_pin);
 	dev_detect_ddr |= _BV(dev_detect_pin);
 	_delay_ms(500); // delay to simulate disconnect
-
-	// ready twi bus, no pull-ups
-	twi_port &= 0xFF ^ _BV(twi_scl_pin);
-	twi_port &= 0xFF ^ _BV(twi_sda_pin);
 #endif
 
 	// start twi slave, link events

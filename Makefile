@@ -1,11 +1,9 @@
 PRG            = nes2wii
-OBJ            = main.o wiimote.o gamepad.o
-LFUSE          = CF
-HFUSE          = C9
+OBJ            = main.o wiimote.o gamepads.o
+LFUSE          = FF
+HFUSE          = D9
 MCU_PROGRAMMER = m16
-#PROGRAMMER_TYPE = avr109 
 PROGRAMMER_TYPE = avrisp2
-#PROGRAMMER_PORT = com3
 PROGRAMMER_PORT = usb
 
 #MCU_TARGET     = at90s2313

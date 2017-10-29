@@ -9,40 +9,36 @@ Features:
 
 ## Schematics
 
-![Schematics](nes2wii.png)
+![Schematics](board/nes2wii.png)
 
 Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you need 20MHz crystal for N64 support. 8MHz is fine if you don't need N64.
 
 ## Fuses
-* Low fuse: 0xCF
-* High fuse: 0xC9
+* Low fuse: 0xFF
+* High fuse: 0xD9
 
 ## How to use with PC
 Just install HID Wiimote driver by Julian Lohr: [http://julianloehr.de/educational-work/hid-wiimote/](http://julianloehr.de/educational-work/hid-wiimote/ "http://julianloehr.de/educational-work/hid-wiimote/")
 
 ## Tested on
 
-* ATMEGA16A, 20MHz crystal
+* ATMEGA16A, 16MHz crystal
 * ATMEGA8, 8MHz (without N64 support)
 * NES, SNES, N64, SMD and DualShock controllers
 
 ## Modes
+
 There are three modes for NES/SNES/SMD controllers:
 * Mode #1 - d-pad works as left analog stick and d-pad on classic controller at the same time
 * Mode #2 - d-pad works as left analog stick only
 * Mode #3 - d-pad works as d-pad only
 
-You can hold Start+A+B for a few seconds to change mode. Green led will blink 1/2/3 times indicating new mode.
+You can hold Start+A+B for a few seconds to change mode. Red led will blink 1/2/3 times indicating new mode.
 
 ## Notes
 
 * You can select pins and required controllers in *defines.h*.
 * *Detect* (*DTCT*) wire is optional but recommended to prevent some glitches. If not used it must be connected directly to VCC.
-
-## Known bugs/problems
-
-* Not working with new Wii U games like Mario Kart 8. Some protection against unlicensed controllers?
-* Not working with new wiimotes (with MotionPlus). Seems like protection, again.
 
 ## Author/contacts
 

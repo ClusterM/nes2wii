@@ -19,30 +19,21 @@
 #define dev_detect_pin DETECT_PIN
 #endif
 
-#define PRESS_A			but_dat[5] &= 0b11101111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_B			but_dat[5] &= 0b10111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_X			but_dat[5] &= 0b11110111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_Y			but_dat[5] &= 0b11011111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_L			but_dat[4] &= 0b11011111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-#define PRESS_R			but_dat[4] &= 0b11111101; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-#define PRESS_ZL		but_dat[5] &= 0b01111111; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_ZR		but_dat[5] &= 0b11111011; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_SELECT 	but_dat[4] &= 0b11101111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-#define PRESS_START 	but_dat[4] &= 0b11111011; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-#define PRESS_UP		but_dat[5] &= 0b11111110; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_DOWN		but_dat[4] &= 0b10111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-#define PRESS_LEFT		but_dat[5] &= 0b11111101; // BZL	BB	BY	BA	BX	BZR	BDL	BDU
-#define PRESS_RIGHT		but_dat[4] &= 0b01111111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-#define PRESS_HOME		but_dat[4] &= 0b11110111; // BDR	BDD	BLT	B-	BH	B+	BRT	 1
-
 #define RED_LED_PORT_PORT PORT(RED_LED_PORT)
 #define RED_LED_PORT_DDR DDR(RED_LED_PORT)
 #define GREEN_LED_PORT_PORT PORT(GREEN_LED_PORT)
 #define GREEN_LED_PORT_DDR DDR(GREEN_LED_PORT)
 
-#define RED_ON RED_LED_PORT_PORT |= (1<<RED_LED_PIN);
-#define RED_OFF RED_LED_PORT_PORT &= ~(1<<RED_LED_PIN);
-#define GREEN_ON GREEN_LED_PORT_PORT |= (1<<GREEN_LED_PIN);
-#define GREEN_OFF GREEN_LED_PORT_PORT &= ~(1<<GREEN_LED_PIN);
+#define RED_ON RED_LED_PORT_PORT |= (1<<RED_LED_PIN)
+#define RED_OFF RED_LED_PORT_PORT &= ~(1<<RED_LED_PIN)
+#define GREEN_ON GREEN_LED_PORT_PORT |= (1<<GREEN_LED_PIN)
+#define GREEN_OFF GREEN_LED_PORT_PORT &= ~(1<<GREEN_LED_PIN)
+
+#define ABS(x) (x >= 0 ? x : -x)
+#define ABSMAX(a,b) (ABS(a)>ABS(b)?a:b)
+
+#define DPAD_MODE_BOTH 0
+#define DPAD_MODE_STICK 1
+#define DPAD_MODE_DPAD 2
 
 #endif
