@@ -11,13 +11,15 @@ Features:
 
 ![Schematics](board/nes2wii.png)
 
-Just ATMEGA16 (or any other ATMEGA, just recompile source code). And yes, you need 20MHz crystal for N64 support. 8MHz is fine if you don't need N64.
+Just ATMEGA16 (or any other ATMEGA, just recompile source code). You need 16MHz crystal for N64. 8MHz internal oscillator is fine if you don't need N64.
 
-## Fuses
+## Fuses (for ATMEGA16 with crystal)
+
 * Low fuse: 0xFF
 * High fuse: 0xD9
 
 ## How to use with PC
+
 Just install HID Wiimote driver by Julian Lohr: [http://julianloehr.de/educational-work/hid-wiimote/](http://julianloehr.de/educational-work/hid-wiimote/ "http://julianloehr.de/educational-work/hid-wiimote/")
 
 ## Tested on
