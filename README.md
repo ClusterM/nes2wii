@@ -1,6 +1,6 @@
 # NES2Wii
 
-NES2Wii - NES/SNES/N64/SMD/DualShock gamepad to Wii remote adapter
+NES2Wii - adapter for NES/SNES/N64/SMD/DualShock gamepad to NES Mini, SNES Mini or Wii remote
 
 Features:
 
