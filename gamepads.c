@@ -3,6 +3,7 @@
 #include <util/delay.h>
 #include <string.h>
 #include "gamepads.h"
+//#include "usart.h"
 
 struct nes_state nes1;
 struct nes_state nes2;
@@ -115,7 +116,7 @@ void gamepads_init()
 }
 
 #ifdef DUALSHOCK_PORT
-static int8_t dualshock_command(uint8_t* command, uint8_t* data, int length, uint8_t controller_number)
+int8_t dualshock_command(uint8_t* command, uint8_t* data, int length, uint8_t controller_number)
 {
 	int8_t result = 1;
 	if (!controller_number)
@@ -167,11 +168,11 @@ static int8_t dualshock_command(uint8_t* command, uint8_t* data, int length, uin
 		PORT(DUALSHOCK_PORT) |= (1 << DUALSHOCK2_ATT_PIN); // No attention...
 #endif
 	}
-	_delay_us(25);
+	_delay_us(20);
 	return result;
 }
 
-static uint8_t get_dualshock_gamepad(uint8_t* data, int size, uint8_t motor_small, uint8_t motor_large, uint8_t controller_number)
+uint8_t get_dualshock_gamepad(uint8_t* data, int size, uint8_t motor_small, uint8_t motor_large, uint8_t controller_number)
 {
 	static uint8_t dualshock_configered[2] = {0, 0};
 	uint8_t command_config_mode[5] = {0x01, 0x43, 0x00, 0x01, 0x00};
@@ -211,7 +212,7 @@ static uint8_t get_dualshock_gamepad(uint8_t* data, int size, uint8_t motor_smal
 	return 1;
 }
 
-static void dualshock_decode(uint8_t controller_number, struct dualshock_state* dualshock)
+void dualshock_decode(uint8_t controller_number, struct dualshock_state* dualshock)
 {
 	uint8_t dualshock_data[21];
 	if (get_dualshock_gamepad(dualshock_data, sizeof(dualshock_data), 0, 0, controller_number))
@@ -219,18 +220,14 @@ static void dualshock_decode(uint8_t controller_number, struct dualshock_state* 
 		dualshock->connected = 1;
 		dualshock->analog = (dualshock_data[1] & 0xF0) == 0x70;
 		dualshock->pressure = (dualshock_data[1] & 0xFF) == 0x79;
-		if (!dualshock->analog)
-		{
-			memset((void*)&dualshock_data[5], 0, 4);
-		} else {
-			dualshock_data[5] = (int8_t)((int8_t)dualshock_data[5]-0x80);
-			dualshock_data[6] = (int8_t)((int8_t)dualshock_data[6]-0x80);
-			dualshock_data[7] = (int8_t)((int8_t)dualshock_data[7]-0x80);
-			dualshock_data[8] = (int8_t)((int8_t)dualshock_data[8]-0x80);
-		}
+		if (!dualshock->analog)	memset((void*)&dualshock_data[5], 0, 4);
 		if (!dualshock->pressure) memset((void*)&dualshock_data[9], 0, 12);
 		dualshock_data[3] = ~dualshock_data[3];
 		dualshock_data[4] = ~dualshock_data[4];
+		dualshock_data[5] = (int8_t)(dualshock_data[5]-0x80);
+		dualshock_data[6] = (int8_t)(dualshock_data[6]-0x80);
+		dualshock_data[7] = (int8_t)(dualshock_data[7]-0x80);
+		dualshock_data[8] = (int8_t)(dualshock_data[8]-0x80);
 		memcpy((void*)dualshock, (void*)&dualshock_data[3], 18);
 	} else {
 		memset((void*)dualshock, 0, sizeof(struct dualshock_state));
@@ -238,8 +235,7 @@ static void dualshock_decode(uint8_t controller_number, struct dualshock_state* 
 }
 #endif
 
-#ifdef N64_PORT
-static uint8_t get_nintendo64_gamepad(uint32_t* data, uint8_t controller_number)
+uint8_t get_nintendo64_gamepad(uint32_t* data, uint8_t controller_number)
 {
 	uint8_t b;
 	uint8_t n64_times[33];
@@ -281,7 +277,6 @@ static uint8_t get_nintendo64_gamepad(uint32_t* data, uint8_t controller_number)
 	*data = n64_data;
 	return 1;
 }
-#endif
 
 void gamepads_query()
 {
@@ -336,6 +331,8 @@ void gamepads_query()
 #endif
 
 	PORT(SMD_SELECT_PORT) |= (1 << SMD_SELECT_PIN);
+	PORTA |= 1<<6;
+	DDRA |= 1<<6;
 	for (b = 0; b < 10; b++)
 	{
 		_delay_us(10);
@@ -360,35 +357,69 @@ void gamepads_query()
 	}
 #ifdef SMD1_DATA_PORT
 	smd1.connected = !(sega_d1[1] & 0b001100);
-	smd1.six_buttons = !(sega_d1[5] & 0b001111) && !(~sega_d1[7] & 0b001111);
-	smd1.a = !!(~sega_d1[1] & 0b010000);
-	smd1.b = !!(~sega_d1[0] & 0b010000);
-	smd1.c = !!(~sega_d1[0] & 0b100000);
-	smd1.x = !!(smd1.six_buttons && (~sega_d1[6] & 0b000100));
-	smd1.y = !!(smd1.six_buttons && (~sega_d1[6] & 0b000010));
-	smd1.z = !!(smd1.six_buttons && (~sega_d1[6] & 0b000001));
-	smd1.up = !!(~sega_d1[0] & 0b000001);
-	smd1.down = !!(~sega_d1[0] & 0b000010);
-	smd1.left = !!(~sega_d1[0] & 0b000100);
-	smd1.right = !!(~sega_d1[0] & 0b001000);
-	smd1.start = !!(~sega_d1[1] & 0b100000);
-	smd1.mode = !!(smd1.six_buttons && (~sega_d1[6] & 0b001000));
+	if (smd1.connected)
+	{
+		smd1.six_buttons = !(sega_d1[5] & 0b001111) && !(~sega_d1[7] & 0b001111);
+		smd1.a = !!(~sega_d1[1] & 0b010000);
+		smd1.b = !!(~sega_d1[0] & 0b010000);
+		smd1.c = !!(~sega_d1[0] & 0b100000);
+		smd1.x = !!(smd1.six_buttons && (~sega_d1[6] & 0b000100));
+		smd1.y = !!(smd1.six_buttons && (~sega_d1[6] & 0b000010));
+		smd1.z = !!(smd1.six_buttons && (~sega_d1[6] & 0b000001));
+		smd1.up = !!(~sega_d1[0] & 0b000001);
+		smd1.down = !!(~sega_d1[0] & 0b000010);
+		smd1.left = !!(~sega_d1[0] & 0b000100);
+		smd1.right = !!(~sega_d1[0] & 0b001000);
+		smd1.start = !!(~sega_d1[1] & 0b100000);
+		smd1.mode = !!(smd1.six_buttons && (~sega_d1[6] & 0b001000));
+	} else {
+		smd1.six_buttons = 0;
+		smd1.a = 0;
+		smd1.b = 0;
+		smd1.c = 0;
+		smd1.x = 0;
+		smd1.y = 0;
+		smd1.z = 0;
+		smd1.up = 0;
+		smd1.down = 0;
+		smd1.left = 0;
+		smd1.right = 0;
+		smd1.start = 0;
+		smd1.mode = 0;
+	}
 #endif
 #ifdef SMD2_DATA_PORT
 	smd2.connected = !(sega_d2[1] & 0b001100);
-	smd2.six_buttons = !(sega_d2[5] & 0b001111) && !(~sega_d2[7] & 0b001111);
-	smd2.a = !!(~sega_d2[1] & 0b010000);
-	smd2.b = !!(~sega_d2[0] & 0b010000);
-	smd2.c = !!(~sega_d2[0] & 0b100000);
-	smd2.x = !!(smd2.six_buttons && (~sega_d2[6] & 0b000100));
-	smd2.y = !!(smd2.six_buttons && (~sega_d2[6] & 0b000010));
-	smd2.z = !!(smd2.six_buttons && (~sega_d2[6] & 0b000001));
-	smd2.up = !!(~sega_d2[0] & 0b000001);
-	smd2.down = !!(~sega_d2[0] & 0b000010);
-	smd2.left = !!(~sega_d2[0] & 0b000100);
-	smd2.right = !!(~sega_d2[0] & 0b001000);
-	smd2.start = !!(~sega_d2[1] & 0b100000);
-	smd2.mode = !!(smd2.six_buttons && (~sega_d2[6] & 0b001000));
+	if (smd2.connected)
+	{
+		smd2.six_buttons = !(sega_d2[5] & 0b001111) && !(~sega_d2[7] & 0b001111);
+		smd2.a = !!(~sega_d2[1] & 0b010000);
+		smd2.b = !!(~sega_d2[0] & 0b010000);
+		smd2.c = !!(~sega_d2[0] & 0b100000);
+		smd2.x = !!(smd2.six_buttons && (~sega_d2[6] & 0b000100));
+		smd2.y = !!(smd2.six_buttons && (~sega_d2[6] & 0b000010));
+		smd2.z = !!(smd2.six_buttons && (~sega_d2[6] & 0b000001));
+		smd2.up = !!(~sega_d2[0] & 0b000001);
+		smd2.down = !!(~sega_d2[0] & 0b000010);
+		smd2.left = !!(~sega_d2[0] & 0b000100);
+		smd2.right = !!(~sega_d2[0] & 0b001000);
+		smd2.start = !!(~sega_d2[1] & 0b100000);
+		smd2.mode = !!(smd2.six_buttons && (~sega_d2[6] & 0b001000));
+	} else {
+		smd2.six_buttons = 0;
+		smd2.a = 0;
+		smd2.b = 0;
+		smd2.c = 0;
+		smd2.x = 0;
+		smd2.y = 0;
+		smd2.z = 0;
+		smd2.up = 0;
+		smd2.down = 0;
+		smd2.left = 0;
+		smd2.right = 0;
+		smd2.start = 0;
+		smd2.mode = 0;
+	}
 #endif
 #endif
 
@@ -455,6 +486,10 @@ void gamepads_query()
 	dualshock_decode(1, &dualshock2);
 #endif
 #endif
+//	tx_d(dualshock1.connected); tx_byte(' '); tx_d(dualshock1.analog); tx_byte(' '); tx_d(dualshock1.pressure); tx_byte(' '); tx_hex(dualshock1.lx,1); tx_byte(' '); tx_hex(dualshock1.ly,1); tx_byte(' '); tx_hex(dualshock1.rx,1); tx_byte(' '); tx_hex(dualshock1.ry,1); tx_byte(' '); tx_byte(' '); 
+//	tx_d(dualshock1.pressure_cross); tx_byte(' '); tx_d(dualshock1.pressure_square); tx_byte(' '); tx_d(dualshock1.pressure_triangle); tx_byte(' '); tx_d(dualshock1.pressure_circle); tx_byte(' '); tx_byte(' '); 
+//	tx_d(dualshock1.cross); tx_byte(' '); tx_d(dualshock1.square); tx_byte(' '); tx_d(dualshock1.triangle); tx_byte(' '); tx_d(dualshock1.circle);
+//	tx_str_C("\r\n");
 
 #ifdef N64_PORT
 	uint32_t n64_data;
@@ -467,4 +502,8 @@ void gamepads_query()
 		memcpy((void*)&n64_2, (void*)&n64_data, sizeof(n64_2));
 #endif
 #endif
+//	tx_d(smd1.a); tx_byte(' '); tx_d(smd1.b); tx_byte(' '); tx_d(smd1.c); tx_str_C("\r\n");
+//	tx_d(n64_1.a); tx_byte(' '); tx_d(n64_1.b); tx_byte(' '); tx_hex(n64_1.x,1); tx_byte(' '); tx_hex(n64_1.y,1); tx_str_C("\r\n");
+//	tx_d(nes1.a); tx_byte(' '); tx_d(nes1.b); tx_byte(' '); tx_str_C("\r\n");
+//	tx_d(n64_1.c_up); tx_byte(' '); tx_d(n64_1.c_down); tx_byte(' '); tx_d(n64_1.c_left); tx_byte(' '); tx_d(n64_1.c_right); tx_str_C("\r\n");
 }
