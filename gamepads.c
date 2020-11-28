@@ -331,8 +331,6 @@ void gamepads_query()
 #endif
 
 	PORT(SMD_SELECT_PORT) |= (1 << SMD_SELECT_PIN);
-	PORTA |= 1<<6;
-	DDRA |= 1<<6;
 	for (b = 0; b < 10; b++)
 	{
 		_delay_us(10);
